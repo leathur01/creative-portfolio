@@ -1,9 +1,11 @@
 package app
 
 import (
-	"github.com/revel/revel"
-	_ "github.com/revel/modules"
+	"database/sql"
 
+	_ "github.com/lib/pq"
+	_ "github.com/revel/modules"
+	"github.com/revel/revel"
 )
 
 var (
@@ -12,7 +14,26 @@ var (
 
 	// BuildTime revel app build-time (ldflags)
 	BuildTime string
+
+	DB *sql.DB
 )
+
+func InitDB() {
+	connStr := "postgres://postgres:a@localhost/creative_portfolio"
+
+	var err error
+	DB, err = sql.Open("postgres", connStr)
+	if err != nil {
+		revel.AppLog.Fatal(err.Error())
+	}
+
+	pingErr := DB.Ping()
+	if pingErr != nil {
+		revel.AppLog.Fatal(pingErr.Error())
+	}
+
+	revel.AppLog.Info("Connected!")
+}
 
 func init() {
 	// Filters is the default set of global filters.
@@ -38,6 +59,8 @@ func init() {
 	// revel.OnAppStart(ExampleStartupScript)
 	// revel.OnAppStart(InitDB)
 	// revel.OnAppStart(FillCache)
+
+	revel.OnAppStart(InitDB)
 }
 
 // HeaderFilter adds common security headers
