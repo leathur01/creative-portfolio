@@ -15,13 +15,19 @@ type User struct {
 	Name       string
 	Email      string
 	CreatedAt  time.Time
-	Portfolios []Portfolio
+	Portfolios []*Portfolio
 }
 
 var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
+func NewUser() User {
+	return User{
+		Portfolios: []*Portfolio{},
+	}
+}
+
 func (u *User) String() string {
-	return fmt.Sprintf("User(%s)", u.Name)
+	return fmt.Sprintf("User(%s, %d)", u.Name, u.Id)
 }
 
 func (u *User) Validate(v *revel.Validation) {
@@ -72,7 +78,11 @@ func GettUser(id int) (*User, error) {
 	return &user, nil
 }
 
-func GetAllUser() ([]*User, error) {
+// func GetUserWithPortfolios(id int) []*User {
+
+// }
+
+func GetAllUsers() ([]*User, error) {
 	query := `
 		SELECT id, name, email, created_at
 		FROM "user"
@@ -104,7 +114,7 @@ func GetAllUser() ([]*User, error) {
 		return nil, err
 	}
 
-	return users, err
+	return users, nil
 }
 
 func UpdateUser(u User) error {
@@ -116,11 +126,7 @@ func UpdateUser(u User) error {
 
 	args := []interface{}{u.Name, u.Email, u.Id}
 	_, err := app.DB.Exec(query, args...)
-	if err != nil {
-		return err //no row case
-	}
-
-	return nil
+	return err
 }
 
 func DeleteUser(id int) error {
@@ -135,13 +141,5 @@ func DeleteUser(id int) error {
 	`
 
 	_, err := app.DB.Exec(query, id)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
-
-// func SelectUserWithPortfolios(id int) []*User {
-
-// }
