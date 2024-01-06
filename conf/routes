@@ -1,26 +1,22 @@
-# Routes Config
-#
-# This file defines all application routes (Higher priority routes first)
-#
 
 module:testrunner
-# module:jobs
 
+GET     /   App.Index
 
-GET     /                                       App.Index
+GET     /favicon.ico    404
 
-# Ignore favicon requests
-GET     /favicon.ico                            404
+GET     /public/*filepath   Static.Serve("public")
 
-# Map static resources from the /app/public folder to the /public path
-GET     /public/*filepath                       Static.Serve("public")
+<!-- User API -->
+POST    /users              Users.Create
+GET     /users/:id          Users.Get
+GET     /users              Users.GetAll
+PUT     /users/:id          Users.Update
+DELETE  /users/:id          Users.Delete
 
-# Catch all, this will route any request into the controller path
-#
-#                    **** WARNING ****
-# Enabling this exposes any controller and function to the web.
-# ** This is a serious security issue if used online **
-#
-# For rapid development uncomment the following to add new controller.action endpoints
-# without having to add them to the routes table.
-# *       /:controller/:action                    :controller.:action
+<!-- Portfolio API -->
+POST    /portfolios         Portfolios.Create
+GET     /portfolios/:id     Portfolios.Get
+GET     /portfolios         Portfolios.GetAll
+PUT     /portfolios/:id     Portfolios.Update
+DELETE  /portfolios/:id     Portfolios.Delete
