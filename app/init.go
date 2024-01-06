@@ -19,7 +19,7 @@ var (
 )
 
 func InitDB() {
-	connStr := "postgres://postgres:a@localhost/creative_portfolio"
+	connStr := "postgres://postgres:password@localhost/creative_portfolio"
 
 	var err error
 	DB, err = sql.Open("postgres", connStr)
