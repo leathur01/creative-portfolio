@@ -63,7 +63,7 @@ func GettUser(id int) (*User, error) {
 		FROM "user"
 		WHERE id = $1;
 	`
-	user := User{}
+	user := NewUser()
 	err := app.DB.QueryRow(query, id).Scan(
 		&user.Id,
 		&user.Name,
