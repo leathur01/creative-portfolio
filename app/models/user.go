@@ -11,11 +11,11 @@ import (
 )
 
 type User struct {
-	Id         int
-	Name       string
-	Email      string
-	CreatedAt  time.Time
-	Portfolios []*Portfolio
+	Id         int          `json:"id,omitempty"`
+	Name       string       `json:"name,omitempty"`
+	Email      string       `json:"email,omitempty"`
+	CreatedAt  time.Time    `json:"created-at,omitempty"`
+	Portfolios []*Portfolio `json:"portfolios,omitempty"`
 }
 
 var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
@@ -35,12 +35,12 @@ func (u *User) Validate(v *revel.Validation) {
 		revel.Required{},
 		revel.MaxSize{Max: 15},
 		revel.MinSize{Min: 4},
-	)
+	).Key("user name")
 
 	v.Check(u.Email,
 		revel.Required{},
 		revel.Match{Regexp: emailRegex},
-	)
+	).Key("user email")
 }
 
 func InsertUser(u User) error {

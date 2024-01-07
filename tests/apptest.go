@@ -54,7 +54,7 @@ func (t *AppTest) GetPortfolio() {
 	revel.AppLog.Info(portfolio.String())
 
 	// Test getting portfolion with the related user
-	portfolio, err = models.GetPortfolioWithUser(2)
+	portfolio, err = models.GetPortfolio(2)
 	if err != nil {
 		revel.AppLog.Fatal(err.Error())
 	}

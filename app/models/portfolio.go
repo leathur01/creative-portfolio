@@ -10,10 +10,10 @@ import (
 )
 
 type Portfolio struct {
-	Id        int
-	Name      string
-	CreatedAt time.Time
-	User      *User
+	Id        int       `json:"id,omitempty"`
+	Name      string    `json:"name,omitempty"`
+	CreatedAt time.Time `json:"created-at,omitempty"`
+	User      *User     `json:"user,omitempty"`
 }
 
 func NewPortfolio() Portfolio {
@@ -32,7 +32,7 @@ func (p *Portfolio) Validate(v *revel.Validation) {
 	v.Check(p.Name,
 		revel.Required{},
 		revel.MaxSize{Max: 50},
-	)
+	).Key("portfolio name")
 }
 
 func InsertPortfolio(p Portfolio) error {
@@ -46,40 +46,40 @@ func InsertPortfolio(p Portfolio) error {
 	return err
 }
 
+// func GetPortfolio(id int) (*Portfolio, error) {
+// 	if id < 1 {
+// 		return nil, sql.ErrNoRows
+// 	}
+
+// 	query := `
+// 		SELECT id, name, created_at, user_id
+// 		FROM portfolio
+// 		WHERE id = $1;
+// 	`
+
+// 	args := []interface{}{id}
+// 	portfolio := NewPortfolio()
+// 	err := app.DB.QueryRow(query, args...).Scan(
+// 		&portfolio.Id,
+// 		&portfolio.Name,
+// 		&portfolio.CreatedAt,
+// 		&portfolio.User.Id,
+// 	)
+
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return &portfolio, nil
+// }
+
 func GetPortfolio(id int) (*Portfolio, error) {
 	if id < 1 {
 		return nil, sql.ErrNoRows
 	}
 
 	query := `
-		SELECT id, name, created_at, user_id
-		FROM portfolio
-		WHERE id = $1;
-	`
-
-	args := []interface{}{id}
-	portfolio := NewPortfolio()
-	err := app.DB.QueryRow(query, args...).Scan(
-		&portfolio.Id,
-		&portfolio.Name,
-		&portfolio.CreatedAt,
-		&portfolio.User.Id,
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &portfolio, nil
-}
-
-func GetPortfolioWithUser(id int) (*Portfolio, error) {
-	if id < 1 {
-		return nil, sql.ErrNoRows
-	}
-
-	query := `
-		SELECT p.id, p.name, p.created_at, u.id, u.name, u.email, u.created_at
+		SELECT p.id, p.name, p.created_at, u.id, u.name, u.email
 		FROM portfolio as p
 		JOIN "user" as u on p.user_id = u.id
 		WHERE p.id = $1;
@@ -95,7 +95,6 @@ func GetPortfolioWithUser(id int) (*Portfolio, error) {
 		&user.Id,
 		&user.Name,
 		&user.Email,
-		&user.CreatedAt,
 	)
 
 	if err != nil {
@@ -150,10 +149,9 @@ func GetAllPortfoliosOfUser(userId int) ([]*Portfolio, error) {
 	}
 
 	query := `
-		SELECT p.id, p.name, p.created_at, u.id, u.name, u.email, u.created_at
+		SELECT p.id, p.name, p.created_at
 		FROM portfolio as p
-		JOIN "user" as u on p.user_id = u.id
-		WHERE u.id = $1;
+		WHERE p.user_id = $1;
 	`
 
 	rows, err := app.DB.Query(query, userId)
@@ -164,6 +162,7 @@ func GetAllPortfoliosOfUser(userId int) ([]*Portfolio, error) {
 	defer rows.Close()
 
 	user := NewUser()
+	user.Id = userId
 	portfolios := []*Portfolio{}
 	for rows.Next() {
 		portfolio := NewPortfolio()
@@ -171,10 +170,6 @@ func GetAllPortfoliosOfUser(userId int) ([]*Portfolio, error) {
 			&portfolio.Id,
 			&portfolio.Name,
 			&portfolio.CreatedAt,
-			&user.Id,
-			&user.Name,
-			&user.Email,
-			&user.CreatedAt,
 		)
 
 		if err != nil {
@@ -184,8 +179,6 @@ func GetAllPortfoliosOfUser(userId int) ([]*Portfolio, error) {
 		portfolio.User = &user
 		portfolios = append(portfolios, &portfolio)
 	}
-
-	user.Portfolios = portfolios
 
 	if err = rows.Err(); err != nil {
 		return nil, err
