@@ -33,7 +33,8 @@ func (c Portfolios) Create() revel.Result {
 			return notFoundResponse(data, c.Controller)
 		}
 
-		return serverErrorResponse(data, c.Controller)
+		return serverErrorResponse(data, err, c.Controller)
+
 	}
 
 	user.Id = input.UserId
@@ -49,7 +50,7 @@ func (c Portfolios) Create() revel.Result {
 
 	err = models.InsertPortfolio(portfolio)
 	if err != nil {
-		return serverErrorResponse(data, c.Controller)
+		return serverErrorResponse(data, err, c.Controller)
 	}
 
 	return c.RenderJSON(portfolio)
@@ -70,7 +71,7 @@ func (c Portfolios) Get() revel.Result {
 			return notFoundResponse(data, c.Controller)
 		}
 
-		return serverErrorResponse(data, c.Controller)
+		return serverErrorResponse(data, err, c.Controller)
 	}
 
 	// Prevent cyclic json
@@ -85,6 +86,7 @@ func (c Portfolios) Get() revel.Result {
 func (c Portfolios) GetAll() revel.Result {
 	data := make(map[string]interface{})
 
+	var portfolios []*models.Portfolio
 	userIdQuery := c.Params.Query.Get("user-id")
 	if userIdQuery != "" {
 		userId, err := strconv.Atoi(userIdQuery)
@@ -92,24 +94,30 @@ func (c Portfolios) GetAll() revel.Result {
 			return badRequestResponse(data, "Invalid user id", c.Controller)
 		}
 
-		portfolios, err := models.GetAllPortfoliosOfUser(userId)
+		portfolios, err = models.GetAllPortfoliosOfUser(userId)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				return notFoundResponse(data, c.Controller)
 			}
-
-			return serverErrorResponse(data, c.Controller, err)
+			return serverErrorResponse(data, err, c.Controller)
 		}
+	} else {
+		var err error
+		portfolios, err = models.GetAllPortfolios()
+		if err != nil {
+			return serverErrorResponse(data, err, c.Controller)
+		}
+	}
 
+	html := c.Params.Query.Get("html")
+	if html == "" {
 		return c.RenderJSON(portfolios)
+	} else if html == "true" {
+		c.ViewArgs["portfolios"] = portfolios
+		return c.RenderTemplate("Portfolios/index.html")
 	}
 
-	portfolios, err := models.GetAllPortfolios()
-	if err != nil {
-		return serverErrorResponse(data, c.Controller)
-	}
-
-	return c.RenderJSON(portfolios)
+	return badRequestResponse(data, "Invalid html parameter", c.Controller)
 }
 
 func (c Portfolios) Update() revel.Result {
@@ -127,7 +135,7 @@ func (c Portfolios) Update() revel.Result {
 			return notFoundResponse(data, c.Controller)
 		}
 
-		return serverErrorResponse(data, c.Controller)
+		return serverErrorResponse(data, err, c.Controller)
 	}
 
 	// Prevent cyclic json
@@ -156,7 +164,7 @@ func (c Portfolios) Update() revel.Result {
 
 	err = models.UpdatePortfolio(*portfolio)
 	if err != nil {
-		return serverErrorResponse(data, c.Controller)
+		return serverErrorResponse(data, err, c.Controller)
 	}
 
 	return c.RenderJSON(portfolio)
@@ -179,7 +187,7 @@ func (c Portfolios) Delete() revel.Result {
 			return badRequestResponse(data, "Invalid id parameter", c.Controller)
 		}
 
-		return serverErrorResponse(data, c.Controller)
+		return serverErrorResponse(data, err, c.Controller)
 	}
 
 	return nil

@@ -1,22 +1,28 @@
-
 module:testrunner
 
-GET     /   App.Index
+GET / App.Index
 
-GET     /favicon.ico    404
+GET /favicon.ico 404
 
-GET     /public/*filepath   Static.Serve("public")
+GET /public/*filepath Static.Serve("public")
 
 <!-- User API -->
-POST    /users              Users.Create
-GET     /users/:id          Users.Get
-GET     /users              Users.GetAll
-PUT     /users/:id          Users.Update
-DELETE  /users/:id          Users.Delete
+<!-- http form only supports post and get
+This route is used to forward the request
+to the proper request handler -->
+POST /users/:id Users.Create
+
+POST /users/ Users.Create
+GET /users/form Users.Form
+GET /users/:id Users.Get
+GET /users Users.GetAll
+PUT /users/:id Users.Update
+DELETE /users/:id Users.Delete
+GET /users/:id/form Users.Form
 
 <!-- Portfolio API -->
-POST    /portfolios         Portfolios.Create
-GET     /portfolios/:id     Portfolios.Get
-GET     /portfolios         Portfolios.GetAll
-PUT     /portfolios/:id     Portfolios.Update
-DELETE  /portfolios/:id     Portfolios.Delete
+POST /portfolios Portfolios.Create
+GET /portfolios/:id Portfolios.Get
+GET /portfolios Portfolios.GetAll
+PUT /portfolios/:id Portfolios.Update
+DELETE /portfolios/:id Portfolios.Delete

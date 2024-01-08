@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    {{if .user}}
+    <h1>Edit user {{.user.Id}}</h1>
+    {{else}}
+    <h1>Create a new user</h1>
+    {{end}}
+
+    {{with .user}}
+    <form action="/users/{{.Id}}/?html=true" method="POST">
+        {{else}}
+        <form action="/users/?html=true" method="POST">
+            {{end}}
+            <div>
+                <label>Username</label>
+                <input type="text" name="name" value="{{.user.Name}}">
+            </div>
+            <div>
+                <label>Email</label>
+                <input type="text" name="email" value="{{.user.Email}}">
+            </div>
+            {{if .user}}
+            <input type='hidden' name='method' value=put />
+            {{end}}
+            <div>
+                {{with .user}}
+                <input type="submit" value="Update User">
+                {{else}}
+                <input type="submit" value="Create User">
+                {{end}}
+            </div>
+        </form>
+        <button>Create Portfolio</button>
+</body>
+
+</html>

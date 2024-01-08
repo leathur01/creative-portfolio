@@ -86,6 +86,7 @@ func GetAllUsers() ([]*User, error) {
 	query := `
 		SELECT id, name, email, created_at
 		FROM "user"
+		ORDER by id ASC
 	`
 	rows, err := app.DB.Query(query)
 	if err != nil {
