@@ -15,6 +15,8 @@
 </head>
 
 <body>
+    <a href="/users/?html=true">Home</a>
+
     <h2>All users</h2>
     <a href="/users/form"><button>Create a new user</button></a>
     <table style="width:100%">
@@ -33,6 +35,5 @@
         </tr>
         {{end}}
     </table>
-</body>
 
-</html>
+    {{template "footer.html" .}}
