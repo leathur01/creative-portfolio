@@ -33,3 +33,10 @@ GET /api/users/:id Users.Get
 GET /api/users Users.GetAll
 PUT /api/users/:id Users.Update
 DELETE /api/users/:id Users.Delete
+
+<!-- Portfolio API endppoints -->
+POST /api/portfolios PortfolioView.Create
+GET /api/portfolios/:id PortfolioView.Get
+GET /api/portfolios PortfolioView.GetAll
+PUT /api/portfolios/:id PortfolioView.Update
+DELETE /api/portfolios/:id PortfolioView.Delete

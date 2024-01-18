@@ -192,5 +192,5 @@ func (c PortfolioView) Delete() revel.Result {
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
-	return nil
+	return c.RenderJSON(portfolioId)
 }
