@@ -10,19 +10,19 @@ GET /public/*filepath Static.Serve("public")
 <!-- http form only supports post and get
 This route is used to forward the request
 to the proper request handler -->
-POST /users/:id Users.Create
+POST /users/:id UserView.Create
 
-POST /users/ Users.Create
-GET /users/form Users.Form
-GET /users/:id Users.Get
-GET /users Users.GetAll
-PUT /users/:id Users.Update
-DELETE /users/:id Users.Delete
-GET /users/:id/form Users.Form
+POST /users/ UserView.Create
+GET /users/form UserView.Form
+GET /users/:id UserView.Get
+GET /users UserView.GetAll
+PUT /users/:id UserView.Update
+DELETE /users/:id UserView.Delete
+GET /users/:id/form UserView.Form
 
 <!-- Portfolio API -->
-POST /portfolios Portfolios.Create
-GET /portfolios/:id Portfolios.Get
-GET /portfolios Portfolios.GetAll
-PUT /portfolios/:id Portfolios.Update
-DELETE /portfolios/:id Portfolios.Delete
+POST /portfolios PortfolioView.Create
+GET /portfolios/:id PortfolioView.Get
+GET /portfolios PortfolioView.GetAll
+PUT /portfolios/:id PortfolioView.Update
+DELETE /portfolios/:id PortfolioView.Delete
