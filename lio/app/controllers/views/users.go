@@ -28,58 +28,21 @@ func (c UserView) Create() revel.Result {
 	data := make(map[string]interface{})
 	user := models.NewUser()
 
-	html := c.Params.Query.Get("html")
-	if html == "" {
-
-		var input struct {
-			Name  *string `json:"name"`
-			Email *string `json:"email"`
-		}
-
-		err := c.Params.BindJSON(&input)
-		if err != nil {
-			return helpers.BadRequestResponse(data, err.Error(), c.Controller)
-		}
-
-		if input.Name != nil {
-			user.Name = *input.Name
-		}
-
-		if input.Email != nil {
-			user.Email = *input.Email
-		}
-
-		user.Validate(c.Validation)
-		if c.Validation.HasErrors() {
-			return helpers.FailedValidationResponse(data, c.Validation.Errors, c.Controller)
-		}
-
-		err = models.InsertUser(user)
-		if err != nil {
-			return helpers.ServerErrorResponse(data, err, c.Controller)
-		}
-
-		return c.RenderJSON(user)
-
-	} else if html == "true" {
-		user.Name = c.Params.Form.Get("name")
-		user.Email = c.Params.Form.Get("email")
-		user.Validate(c.Validation)
-		if c.Validation.HasErrors() {
-			// TODO:
-			// Redirect user to the form and display errors
-			return helpers.FailedValidationResponse(data, c.Validation.Errors, c.Controller)
-		}
-
-		err := models.InsertUser(user)
-		if err != nil {
-			return helpers.ServerErrorResponse(data, err, c.Controller)
-		}
-
-		return c.Redirect("/users/?html=true")
+	user.Name = c.Params.Form.Get("name")
+	user.Email = c.Params.Form.Get("email")
+	user.Validate(c.Validation)
+	if c.Validation.HasErrors() {
+		// TODO:
+		// Redirect user to the form and display errors
+		return helpers.FailedValidationResponse(data, c.Validation.Errors, c.Controller)
 	}
 
-	return helpers.BadRequestResponse(data, "Invalid html parameter", c.Controller)
+	err := models.InsertUser(user)
+	if err != nil {
+		return helpers.ServerErrorResponse(data, err, c.Controller)
+	}
+
+	return c.Redirect("/users")
 }
 
 func (c UserView) Get() revel.Result {
@@ -100,15 +63,8 @@ func (c UserView) Get() revel.Result {
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
-	html := c.Params.Query.Get("html")
-	if html == "" {
-		return c.RenderJSON(user)
-	} else if html == "true" {
-		c.ViewArgs["user"] = user
-		return c.RenderTemplate("Users/show.html")
-	}
-
-	return helpers.BadRequestResponse(data, "Invalid html parameter", c.Controller)
+	c.ViewArgs["user"] = user
+	return c.RenderTemplate("Users/show.html")
 }
 
 func (c UserView) GetAll() revel.Result {
@@ -119,15 +75,8 @@ func (c UserView) GetAll() revel.Result {
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
-	html := c.Params.Query.Get("html")
-	if html == "" {
-		return c.RenderJSON(users)
-	} else if html == "true" {
-		c.ViewArgs["users"] = users
-		return c.RenderTemplate("Users/index.html")
-	}
-
-	return helpers.BadRequestResponse(data, "Invalid html parameter", c.Controller)
+	c.ViewArgs["users"] = users
+	return c.RenderTemplate("Users/index.html")
 }
 
 func (c UserView) Update() revel.Result {
@@ -148,61 +97,22 @@ func (c UserView) Update() revel.Result {
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
-	html := c.Params.Query.Get("html")
-	// Parsing JSON data
-	if html == "" {
-		var input struct {
-			Name  *string `json:"name"`
-			Email *string `json:"email"`
-		}
+	user.Name = c.Params.Form.Get("name")
+	user.Email = c.Params.Get("email")
 
-		err = c.Params.BindJSON(&input)
-		if err != nil {
-			return helpers.BadRequestResponse(data, err.Error(), c.Controller)
-		}
-
-		if input.Name != nil {
-			user.Name = *input.Name
-		}
-
-		if input.Email != nil {
-			user.Email = *input.Email
-		}
-
-		user.Validate(c.Validation)
-		if c.Validation.HasErrors() {
-			// TODO:
-			// Redirect user to the form and display errors
-			return helpers.FailedValidationResponse(data, c.Validation.Errors, c.Controller)
-		}
-
-		err = models.UpdateUser(*user)
-		if err != nil {
-			return helpers.ServerErrorResponse(data, err, c.Controller)
-		}
-
-		return c.RenderJSON(user)
-
-	} else if html == "true" {
-		user.Name = c.Params.Form.Get("name")
-		user.Email = c.Params.Get("email")
-
-		user.Validate(c.Validation)
-		if c.Validation.HasErrors() {
-			// TODO:
-			// Redirect user to the form and display errors
-			return helpers.FailedValidationResponse(data, c.Validation.Errors, c.Controller)
-		}
-
-		err = models.UpdateUser(*user)
-		if err != nil {
-			return helpers.ServerErrorResponse(data, err, c.Controller)
-		}
-
-		return c.Redirect("/users/%d/?html=true", user.Id)
+	user.Validate(c.Validation)
+	if c.Validation.HasErrors() {
+		// TODO:
+		// Redirect user to the form and display errors
+		return helpers.FailedValidationResponse(data, c.Validation.Errors, c.Controller)
 	}
 
-	return helpers.BadRequestResponse(data, "Invalid html parameter", c.Controller)
+	err = models.UpdateUser(*user)
+	if err != nil {
+		return helpers.ServerErrorResponse(data, err, c.Controller)
+	}
+
+	return c.Redirect("/users/%d", user.Id)
 }
 
 func (c UserView) Delete() revel.Result {
@@ -225,14 +135,8 @@ func (c UserView) Delete() revel.Result {
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
-	html := c.Params.Query.Get("html")
-	if html == "" {
-		return c.RenderJSON(userId)
-	} else if html == "true" {
-		return c.Redirect("/users/?html=true")
-	}
+	return c.Redirect("/users")
 
-	return helpers.BadRequestResponse(data, "Invalid html parameter", c.Controller)
 }
 
 // Return a creat form or update form depend on the provided user-id

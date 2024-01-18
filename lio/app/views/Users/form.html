@@ -8,9 +8,9 @@
     {{end}}
 
     {{with .user}}
-    <form action="/users/{{.Id}}/?html=true" method="POST">
+    <form action="/users/{{.Id}}" method="POST">
         {{else}}
-        <form action="/users/?html=true" method="POST">
+        <form action="/users" method="POST">
             {{end}}
             <div>
                 <label>Username</label>
