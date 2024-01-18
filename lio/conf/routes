@@ -6,7 +6,7 @@ GET /favicon.ico 404
 
 GET /public/*filepath Static.Serve("public")
 
-<!-- User API -->
+<!-- User endpoints for server rendering -->
 <!-- http form only supports post and get
 This route is used to forward the request
 to the proper request handler -->
@@ -20,9 +20,16 @@ PUT /users/:id UserView.Update
 DELETE /users/:id UserView.Delete
 GET /users/:id/form UserView.Form
 
-<!-- Portfolio API -->
+<!-- Portfolio endpoints for server rendering -->
 POST /portfolios PortfolioView.Create
 GET /portfolios/:id PortfolioView.Get
 GET /portfolios PortfolioView.GetAll
 PUT /portfolios/:id PortfolioView.Update
 DELETE /portfolios/:id PortfolioView.Delete
+
+<!-- User API endpoints -->
+POST /api/users/ Users.Create
+GET /api/users/:id Users.Get
+GET /api/users Users.GetAll
+PUT /api/users/:id Users.Update
+DELETE /api/users/:id Users.Delete

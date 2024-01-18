@@ -1,6 +1,7 @@
 package views
 
 import (
+	"creative-portfolio/app/controllers/helpers"
 	"creative-portfolio/app/models"
 	"database/sql"
 	"errors"
@@ -24,16 +25,16 @@ func (c PortfolioView) Create() revel.Result {
 
 	err := c.Params.BindJSON(&input)
 	if err != nil {
-		return badRequestResponse(data, err.Error(), c.Controller)
+		return helpers.BadRequestResponse(data, err.Error(), c.Controller)
 	}
 
 	user, err := models.GettUser(input.UserId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return notFoundResponse(data, c.Controller)
+			return helpers.NotFoundResponse(data, c.Controller)
 		}
 
-		return serverErrorResponse(data, err, c.Controller)
+		return helpers.ServerErrorResponse(data, err, c.Controller)
 
 	}
 
@@ -45,12 +46,12 @@ func (c PortfolioView) Create() revel.Result {
 
 	portfolio.Validate(c.Validation)
 	if c.Validation.HasErrors() {
-		return failedValidationResponse(data, c.Validation.Errors, c.Controller)
+		return helpers.FailedValidationResponse(data, c.Validation.Errors, c.Controller)
 	}
 
 	err = models.InsertPortfolio(portfolio)
 	if err != nil {
-		return serverErrorResponse(data, err, c.Controller)
+		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
 	return c.RenderJSON(portfolio)
@@ -62,16 +63,16 @@ func (c PortfolioView) Get() revel.Result {
 	id := c.Params.Route.Get("id")
 	portfolioId, err := strconv.Atoi(id)
 	if err != nil {
-		return badRequestResponse(data, "Invalid id parameter", c.Controller)
+		return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
 	}
 
 	portfolio, err := models.GetPortfolio(portfolioId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return notFoundResponse(data, c.Controller)
+			return helpers.NotFoundResponse(data, c.Controller)
 		}
 
-		return serverErrorResponse(data, err, c.Controller)
+		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
 	// Prevent cyclic json
@@ -91,22 +92,22 @@ func (c PortfolioView) GetAll() revel.Result {
 	if userIdQuery != "" {
 		userId, err := strconv.Atoi(userIdQuery)
 		if err != nil {
-			return badRequestResponse(data, "Invalid user id", c.Controller)
+			return helpers.BadRequestResponse(data, "Invalid user id", c.Controller)
 		}
 
 		portfolios, err = models.GetAllPortfoliosOfUser(userId)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
-				return notFoundResponse(data, c.Controller)
+				return helpers.NotFoundResponse(data, c.Controller)
 			}
-			return serverErrorResponse(data, err, c.Controller)
+			return helpers.ServerErrorResponse(data, err, c.Controller)
 		}
 
 	} else {
 		var err error
 		portfolios, err = models.GetAllPortfolios()
 		if err != nil {
-			return serverErrorResponse(data, err, c.Controller)
+			return helpers.ServerErrorResponse(data, err, c.Controller)
 		}
 	}
 
@@ -118,7 +119,7 @@ func (c PortfolioView) GetAll() revel.Result {
 		return c.RenderTemplate("Portfolios/index.html")
 	}
 
-	return badRequestResponse(data, "Invalid html parameter", c.Controller)
+	return helpers.BadRequestResponse(data, "Invalid html parameter", c.Controller)
 }
 
 func (c PortfolioView) Update() revel.Result {
@@ -127,16 +128,16 @@ func (c PortfolioView) Update() revel.Result {
 	id := c.Params.Route.Get("id")
 	portfolioId, err := strconv.Atoi(id)
 	if err != nil {
-		return badRequestResponse(data, "Invalid id parameter", c.Controller)
+		return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
 	}
 
 	portfolio, err := models.GetPortfolio(portfolioId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return notFoundResponse(data, c.Controller)
+			return helpers.NotFoundResponse(data, c.Controller)
 		}
 
-		return serverErrorResponse(data, err, c.Controller)
+		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
 	// Prevent cyclic json
@@ -151,7 +152,7 @@ func (c PortfolioView) Update() revel.Result {
 
 	err = c.Params.BindJSON(&input)
 	if err != nil {
-		return badRequestResponse(data, err.Error(), c.Controller)
+		return helpers.BadRequestResponse(data, err.Error(), c.Controller)
 	}
 
 	if input.Name != nil {
@@ -160,12 +161,12 @@ func (c PortfolioView) Update() revel.Result {
 
 	portfolio.Validate(c.Validation)
 	if c.Validation.HasErrors() {
-		return failedValidationResponse(data, c.Validation.Errors, c.Controller)
+		return helpers.FailedValidationResponse(data, c.Validation.Errors, c.Controller)
 	}
 
 	err = models.UpdatePortfolio(*portfolio)
 	if err != nil {
-		return serverErrorResponse(data, err, c.Controller)
+		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
 	return c.RenderJSON(portfolio)
@@ -185,10 +186,10 @@ func (c PortfolioView) Delete() revel.Result {
 	err = models.DeletePortfolio(portfolioId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return badRequestResponse(data, "Invalid id parameter", c.Controller)
+			return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
 		}
 
-		return serverErrorResponse(data, err, c.Controller)
+		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
 	return nil

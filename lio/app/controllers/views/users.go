@@ -1,6 +1,7 @@
 package views
 
 import (
+	"creative-portfolio/app/controllers/helpers"
 	"creative-portfolio/app/models"
 	"database/sql"
 	"errors"
@@ -37,7 +38,7 @@ func (c UserView) Create() revel.Result {
 
 		err := c.Params.BindJSON(&input)
 		if err != nil {
-			return badRequestResponse(data, err.Error(), c.Controller)
+			return helpers.BadRequestResponse(data, err.Error(), c.Controller)
 		}
 
 		if input.Name != nil {
@@ -50,15 +51,16 @@ func (c UserView) Create() revel.Result {
 
 		user.Validate(c.Validation)
 		if c.Validation.HasErrors() {
-			return failedValidationResponse(data, c.Validation.Errors, c.Controller)
+			return helpers.FailedValidationResponse(data, c.Validation.Errors, c.Controller)
 		}
 
 		err = models.InsertUser(user)
 		if err != nil {
-			return serverErrorResponse(data, err, c.Controller)
+			return helpers.ServerErrorResponse(data, err, c.Controller)
 		}
 
 		return c.RenderJSON(user)
+
 	} else if html == "true" {
 		user.Name = c.Params.Form.Get("name")
 		user.Email = c.Params.Form.Get("email")
@@ -66,18 +68,18 @@ func (c UserView) Create() revel.Result {
 		if c.Validation.HasErrors() {
 			// TODO:
 			// Redirect user to the form and display errors
-			return failedValidationResponse(data, c.Validation.Errors, c.Controller)
+			return helpers.FailedValidationResponse(data, c.Validation.Errors, c.Controller)
 		}
 
 		err := models.InsertUser(user)
 		if err != nil {
-			return serverErrorResponse(data, err, c.Controller)
+			return helpers.ServerErrorResponse(data, err, c.Controller)
 		}
 
 		return c.Redirect("/users/?html=true")
 	}
 
-	return badRequestResponse(data, "Invalid html parameter", c.Controller)
+	return helpers.BadRequestResponse(data, "Invalid html parameter", c.Controller)
 }
 
 func (c UserView) Get() revel.Result {
@@ -86,16 +88,16 @@ func (c UserView) Get() revel.Result {
 	id := c.Params.Route.Get("id")
 	userId, err := strconv.Atoi(id)
 	if err != nil {
-		return badRequestResponse(data, "Invalid id parameter", c.Controller)
+		return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
 	}
 
 	user, err := models.GettUser(userId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return notFoundResponse(data, c.Controller)
+			return helpers.NotFoundResponse(data, c.Controller)
 		}
 
-		return serverErrorResponse(data, err, c.Controller)
+		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
 	html := c.Params.Query.Get("html")
@@ -106,7 +108,7 @@ func (c UserView) Get() revel.Result {
 		return c.RenderTemplate("Users/show.html")
 	}
 
-	return badRequestResponse(data, "Invalid html parameter", c.Controller)
+	return helpers.BadRequestResponse(data, "Invalid html parameter", c.Controller)
 }
 
 func (c UserView) GetAll() revel.Result {
@@ -114,7 +116,7 @@ func (c UserView) GetAll() revel.Result {
 
 	users, err := models.GetAllUsers()
 	if err != nil {
-		return serverErrorResponse(data, err, c.Controller)
+		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
 	html := c.Params.Query.Get("html")
@@ -125,7 +127,7 @@ func (c UserView) GetAll() revel.Result {
 		return c.RenderTemplate("Users/index.html")
 	}
 
-	return badRequestResponse(data, "Invalid html parameter", c.Controller)
+	return helpers.BadRequestResponse(data, "Invalid html parameter", c.Controller)
 }
 
 func (c UserView) Update() revel.Result {
@@ -134,16 +136,16 @@ func (c UserView) Update() revel.Result {
 	id := c.Params.Route.Get("id")
 	userId, err := strconv.Atoi(id)
 	if err != nil {
-		return badRequestResponse(data, "Invalid id parameter", c.Controller)
+		return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
 	}
 
 	user, err := models.GettUser(userId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return notFoundResponse(data, c.Controller)
+			return helpers.NotFoundResponse(data, c.Controller)
 		}
 
-		return serverErrorResponse(data, err, c.Controller)
+		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
 	html := c.Params.Query.Get("html")
@@ -156,7 +158,7 @@ func (c UserView) Update() revel.Result {
 
 		err = c.Params.BindJSON(&input)
 		if err != nil {
-			return badRequestResponse(data, err.Error(), c.Controller)
+			return helpers.BadRequestResponse(data, err.Error(), c.Controller)
 		}
 
 		if input.Name != nil {
@@ -171,12 +173,12 @@ func (c UserView) Update() revel.Result {
 		if c.Validation.HasErrors() {
 			// TODO:
 			// Redirect user to the form and display errors
-			return failedValidationResponse(data, c.Validation.Errors, c.Controller)
+			return helpers.FailedValidationResponse(data, c.Validation.Errors, c.Controller)
 		}
 
 		err = models.UpdateUser(*user)
 		if err != nil {
-			return serverErrorResponse(data, err, c.Controller)
+			return helpers.ServerErrorResponse(data, err, c.Controller)
 		}
 
 		return c.RenderJSON(user)
@@ -189,18 +191,18 @@ func (c UserView) Update() revel.Result {
 		if c.Validation.HasErrors() {
 			// TODO:
 			// Redirect user to the form and display errors
-			return failedValidationResponse(data, c.Validation.Errors, c.Controller)
+			return helpers.FailedValidationResponse(data, c.Validation.Errors, c.Controller)
 		}
 
 		err = models.UpdateUser(*user)
 		if err != nil {
-			return serverErrorResponse(data, err, c.Controller)
+			return helpers.ServerErrorResponse(data, err, c.Controller)
 		}
 
 		return c.Redirect("/users/%d/?html=true", user.Id)
 	}
 
-	return badRequestResponse(data, "Invalid html parameter", c.Controller)
+	return helpers.BadRequestResponse(data, "Invalid html parameter", c.Controller)
 }
 
 func (c UserView) Delete() revel.Result {
@@ -217,10 +219,10 @@ func (c UserView) Delete() revel.Result {
 	err = models.DeleteUser(userId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return badRequestResponse(data, "Invalid id parameter", c.Controller)
+			return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
 		}
 
-		return serverErrorResponse(data, err, c.Controller)
+		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
 	html := c.Params.Query.Get("html")
@@ -230,7 +232,7 @@ func (c UserView) Delete() revel.Result {
 		return c.Redirect("/users/?html=true")
 	}
 
-	return badRequestResponse(data, "Invalid html parameter", c.Controller)
+	return helpers.BadRequestResponse(data, "Invalid html parameter", c.Controller)
 }
 
 // Return a creat form or update form depend on the provided user-id
@@ -241,16 +243,16 @@ func (c UserView) Form() revel.Result {
 	if id != "" {
 		userId, err := strconv.Atoi(id)
 		if err != nil {
-			return badRequestResponse(data, "Invalid id parameter", c.Controller)
+			return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
 		}
 
 		user, err := models.GettUser(userId)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
-				return notFoundResponse(data, c.Controller)
+				return helpers.NotFoundResponse(data, c.Controller)
 			}
 
-			return serverErrorResponse(data, err, c.Controller)
+			return helpers.ServerErrorResponse(data, err, c.Controller)
 		}
 		c.ViewArgs["user"] = user
 	}
