@@ -5,7 +5,7 @@
     <h1>User {{.Id}}</h1>
     <p>Name: {{.Name}}</p>
     <p>Email: {{.Email}}</p>
-    <a href="/users/{{.Id}}/form"><button>Edit</button></a>
+    <a href="/users/{{.Id}}/edit"><button>Edit</button></a>
     <form action="/users/{{.Id}}" method="POST">
         <input type='hidden' name="method" value="delete" />
         <input type="submit" value="Delete">

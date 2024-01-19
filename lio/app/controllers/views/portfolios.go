@@ -1,8 +1,8 @@
 package views
 
 import (
-	"creative-portfolio/app/controllers/helpers"
-	"creative-portfolio/app/models"
+	"creative-portfolio/lio/app/controllers/helpers"
+	"creative-portfolio/lio/app/models"
 	"database/sql"
 	"errors"
 	"net/http"
@@ -16,33 +16,29 @@ type PortfolioView struct {
 }
 
 func (c PortfolioView) Create() revel.Result {
+	// http form only supports post and get
+	// This code forward the request to the proper request handler
+	method := c.Params.Form.Get("method")
+	if method == "put" {
+		return c.Update()
+	} else if method == "delete" {
+		return c.Delete()
+	}
+
 	data := make(map[string]interface{})
 
-	var input struct {
-		Name   string `json:"name"`
-		UserId int    `json:"user-id"`
-	}
-
-	err := c.Params.BindJSON(&input)
+	user := models.NewUser()
+	userId := c.Params.Form.Get("user-id")
+	var err error
+	user.Id, err = strconv.Atoi(userId)
 	if err != nil {
-		return helpers.BadRequestResponse(data, err.Error(), c.Controller)
+		// TODO: Redirect user to the form and display errors
+		return helpers.BadRequestResponse(data, "invalid id parameter", c.Controller)
 	}
-
-	user, err := models.GettUser(input.UserId)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return helpers.NotFoundResponse(data, c.Controller)
-		}
-
-		return helpers.ServerErrorResponse(data, err, c.Controller)
-
-	}
-
-	user.Id = input.UserId
 
 	portfolio := models.NewPortfolio()
-	portfolio.User = user
-	portfolio.Name = input.Name
+	portfolio.Name = c.Params.Form.Get("name")
+	portfolio.User = &user
 
 	portfolio.Validate(c.Validation)
 	if c.Validation.HasErrors() {
@@ -54,7 +50,7 @@ func (c PortfolioView) Create() revel.Result {
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
-	return c.RenderJSON(portfolio)
+	return c.Redirect("/portfolios")
 }
 
 func (c PortfolioView) Get() revel.Result {
@@ -81,16 +77,17 @@ func (c PortfolioView) Get() revel.Result {
 	// This is equivilent to having a DTO
 	portfolio.User.Portfolios = []*models.Portfolio{}
 
-	return c.RenderJSON(portfolio)
+	c.ViewArgs["portfolio"] = portfolio
+	return c.RenderTemplate("Portfolios/show.html")
 }
 
 func (c PortfolioView) GetAll() revel.Result {
 	data := make(map[string]interface{})
 
 	var portfolios []*models.Portfolio
-	userIdQuery := c.Params.Query.Get("user-id")
-	if userIdQuery != "" {
-		userId, err := strconv.Atoi(userIdQuery)
+	userId := c.Params.Query.Get("user-id")
+	if userId != "" {
+		userId, err := strconv.Atoi(userId)
 		if err != nil {
 			return helpers.BadRequestResponse(data, "Invalid user id", c.Controller)
 		}
@@ -111,15 +108,15 @@ func (c PortfolioView) GetAll() revel.Result {
 		}
 	}
 
-	html := c.Params.Query.Get("html")
-	if html == "" {
-		return c.RenderJSON(portfolios)
-	} else if html == "true" {
-		c.ViewArgs["portfolios"] = portfolios
-		return c.RenderTemplate("Portfolios/index.html")
+	users, err := models.GetAllUsers()
+	if err != nil {
+		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
-	return helpers.BadRequestResponse(data, "Invalid html parameter", c.Controller)
+	c.ViewArgs["users"] = users
+	c.ViewArgs["portfolios"] = portfolios
+	c.ViewArgs["userId"] = userId
+	return c.RenderTemplate("Portfolios/index.html")
 }
 
 func (c PortfolioView) Update() revel.Result {
@@ -146,18 +143,7 @@ func (c PortfolioView) Update() revel.Result {
 	// This is equivilent to having a DTO
 	portfolio.User.Portfolios = []*models.Portfolio{}
 
-	var input struct {
-		Name *string `json:"name"`
-	}
-
-	err = c.Params.BindJSON(&input)
-	if err != nil {
-		return helpers.BadRequestResponse(data, err.Error(), c.Controller)
-	}
-
-	if input.Name != nil {
-		portfolio.Name = *input.Name
-	}
+	portfolio.Name = c.Params.Form.Get("name")
 
 	portfolio.Validate(c.Validation)
 	if c.Validation.HasErrors() {
@@ -169,7 +155,7 @@ func (c PortfolioView) Update() revel.Result {
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
-	return c.RenderJSON(portfolio)
+	return c.Redirect("/portfolios/%d", portfolio.Id)
 }
 
 func (c PortfolioView) Delete() revel.Result {
@@ -193,4 +179,35 @@ func (c PortfolioView) Delete() revel.Result {
 	}
 
 	return c.RenderJSON(portfolioId)
+}
+
+func (c PortfolioView) Form() revel.Result {
+	data := make(map[string]interface{})
+	var users []*models.User
+
+	id := c.Params.Route.Get("id")
+	if id == "" {
+		var err error
+		users, err = models.GetAllUsers()
+		if err != nil {
+			return helpers.ServerErrorResponse(data, err, c.Controller)
+		}
+	} else {
+		portfolioId, err := strconv.Atoi(id)
+		if err != nil {
+			return helpers.BadRequestResponse(data, "invalid id parameter", c.Controller)
+		}
+
+		portfolio, err := models.GetPortfolio(portfolioId)
+		if err != nil {
+			return helpers.ServerErrorResponse(data, err, c.Controller)
+		}
+
+		users = []*models.User{portfolio.User}
+
+		c.ViewArgs["portfolio"] = portfolio
+	}
+
+	c.ViewArgs["users"] = users
+	return c.RenderTemplate("Portfolios/form.html")
 }

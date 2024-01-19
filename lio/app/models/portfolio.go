@@ -1,7 +1,7 @@
 package models
 
 import (
-	"creative-portfolio/app"
+	"creative-portfolio/lio/app"
 	"database/sql"
 	"fmt"
 	"time"
@@ -46,33 +46,6 @@ func InsertPortfolio(p Portfolio) error {
 	return err
 }
 
-// func GetPortfolio(id int) (*Portfolio, error) {
-// 	if id < 1 {
-// 		return nil, sql.ErrNoRows
-// 	}
-
-// 	query := `
-// 		SELECT id, name, created_at, user_id
-// 		FROM portfolio
-// 		WHERE id = $1;
-// 	`
-
-// 	args := []interface{}{id}
-// 	portfolio := NewPortfolio()
-// 	err := app.DB.QueryRow(query, args...).Scan(
-// 		&portfolio.Id,
-// 		&portfolio.Name,
-// 		&portfolio.CreatedAt,
-// 		&portfolio.User.Id,
-// 	)
-
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return &portfolio, nil
-// }
-
 func GetPortfolio(id int) (*Portfolio, error) {
 	if id < 1 {
 		return nil, sql.ErrNoRows
@@ -111,6 +84,7 @@ func GetAllPortfolios() ([]*Portfolio, error) {
 	query := `
 		SELECT id, name, created_at, user_id 
 		FROM portfolio
+		ORDER BY id ASC
 	`
 
 	rows, err := app.DB.Query(query)

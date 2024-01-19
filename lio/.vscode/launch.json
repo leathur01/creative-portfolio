@@ -9,14 +9,12 @@
             "remotePath": "",
             "env": {},
             "showLog": true,
-            "program": "/home/leathur/go/src/creative-portfolio/app/tmp/",
+            "program": "/home/leathur/go/src/creative-portfolio/lio/app/tmp/",
             "args": [
                 "-importPath",
-                "creative-portfolio",
+                "creative-portfolio/lio",
                 "-srcPath",
                 "/home/leathur/go/src",
-                "-runMode",
-                "dev"
             ]
         }
     ]

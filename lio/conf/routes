@@ -13,15 +13,23 @@ to the proper request handler -->
 POST /users/:id UserView.Create
 
 POST /users/ UserView.Create
-GET /users/form UserView.Form
+<!-- Return the form the create a portfolio -->
+GET /users/new UserView.Form
+GET /users/:id/edit UserView.Form
 GET /users/:id UserView.Get
 GET /users UserView.GetAll
 PUT /users/:id UserView.Update
 DELETE /users/:id UserView.Delete
-GET /users/:id/form UserView.Form
 
 <!-- Portfolio endpoints for server rendering -->
+<!-- http form only supports post and get
+This route is used to forward the request
+to the proper request handler -->
+POST /portfolios/:id PortfolioView.Create
+
 POST /portfolios PortfolioView.Create
+GET /portfolios/new PortfolioView.Form
+GET /portfolios/:id/edit PortfolioView.Form
 GET /portfolios/:id PortfolioView.Get
 GET /portfolios PortfolioView.GetAll
 PUT /portfolios/:id PortfolioView.Update
@@ -35,8 +43,8 @@ PUT /api/users/:id Users.Update
 DELETE /api/users/:id Users.Delete
 
 <!-- Portfolio API endppoints -->
-POST /api/portfolios PortfolioView.Create
-GET /api/portfolios/:id PortfolioView.Get
-GET /api/portfolios PortfolioView.GetAll
-PUT /api/portfolios/:id PortfolioView.Update
-DELETE /api/portfolios/:id PortfolioView.Delete
+POST /api/portfolios Portfolios.Create
+GET /api/portfolios/:id Portfolios.Get
+GET /api/portfolios Portfolios.GetAll
+PUT /api/portfolios/:id Portfolios.Update
+DELETE /api/portfolios/:id Portfolios.Delete

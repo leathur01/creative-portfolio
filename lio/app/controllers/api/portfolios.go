@@ -1,8 +1,8 @@
 package api
 
 import (
-	"creative-portfolio/app/controllers/helpers"
-	"creative-portfolio/app/models"
+	"creative-portfolio/lio/app/controllers/helpers"
+	"creative-portfolio/lio/app/models"
 	"database/sql"
 	"errors"
 	"net/http"
@@ -11,11 +11,11 @@ import (
 	"github.com/revel/revel"
 )
 
-type Portfolio struct {
+type Portfolios struct {
 	*revel.Controller
 }
 
-func (c Portfolio) Create() revel.Result {
+func (c Portfolios) Create() revel.Result {
 	data := make(map[string]interface{})
 
 	var input struct {
@@ -57,7 +57,7 @@ func (c Portfolio) Create() revel.Result {
 	return c.RenderJSON(portfolio)
 }
 
-func (c Portfolio) Get() revel.Result {
+func (c Portfolios) Get() revel.Result {
 	data := make(map[string]interface{})
 
 	id := c.Params.Route.Get("id")
@@ -84,13 +84,17 @@ func (c Portfolio) Get() revel.Result {
 	return c.RenderJSON(portfolio)
 }
 
-func (c Portfolio) GetAll() revel.Result {
+func (c Portfolios) GetAll() revel.Result {
 	data := make(map[string]interface{})
 
 	var portfolios []*models.Portfolio
-	userIdQuery := c.Params.Query.Get("user-id")
-	if userIdQuery != "" {
-		userId, err := strconv.Atoi(userIdQuery)
+	userId := c.Params.Query.Get("user-id")
+	if userId == "" {
+		userId = c.Params.Form.Get("user-id")
+	}
+
+	if userId != "" {
+		userId, err := strconv.Atoi(userId)
 		if err != nil {
 			return helpers.BadRequestResponse(data, "Invalid user id", c.Controller)
 		}
@@ -114,7 +118,7 @@ func (c Portfolio) GetAll() revel.Result {
 	return c.RenderJSON(portfolios)
 }
 
-func (c Portfolio) Update() revel.Result {
+func (c Portfolios) Update() revel.Result {
 	data := make(map[string]interface{})
 
 	id := c.Params.Route.Get("id")
@@ -164,7 +168,7 @@ func (c Portfolio) Update() revel.Result {
 	return c.RenderJSON(portfolio)
 }
 
-func (c Portfolio) Delete() revel.Result {
+func (c Portfolios) Delete() revel.Result {
 	data := make(map[string]interface{})
 
 	id := c.Params.Route.Get("id")

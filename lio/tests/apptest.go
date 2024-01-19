@@ -1,7 +1,7 @@
 package tests
 
 import (
-	"creative-portfolio/app/models"
+	"creative-portfolio/lio/app/models"
 	"fmt"
 
 	"github.com/revel/revel"

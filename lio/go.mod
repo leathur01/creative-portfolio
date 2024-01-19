@@ -1,4 +1,4 @@
-module creative-portfolio
+module creative-portfolio/lio
 
 go 1.21.5
 

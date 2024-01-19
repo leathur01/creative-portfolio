@@ -1,7 +1,7 @@
 package models
 
 import (
-	"creative-portfolio/app"
+	"creative-portfolio/lio/app"
 	"database/sql"
 	"fmt"
 	"regexp"
@@ -77,10 +77,6 @@ func GettUser(id int) (*User, error) {
 
 	return &user, nil
 }
-
-// func GetUserWithPortfolios(id int) []*User {
-
-// }
 
 func GetAllUsers() ([]*User, error) {
 	query := `

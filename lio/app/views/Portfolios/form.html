@@ -1,0 +1,49 @@
+{{template "header.html" .}}
+
+<div>
+    {{if .user}}
+    <h1>Edit user {{.user.Id}}</h1>
+    {{else}}
+    <h1>Create a new portfolio</h1>
+    {{end}}
+
+    {{with .portfolio}}
+    <form action="/portfolios/{{.Id}}" method="POST">
+        {{else}}
+        <form action="/portfolios" method="POST">
+            {{end}}
+            <div>
+                <label>Name</label>
+                <input type="text" name="name" value="{{.portfolio.Name}}">
+            </div>
+
+            <div>
+                <label>Create a form for a user with id </label>
+                {{$userCount := len .users}}
+                {{if eq $userCount 1}}
+                {{range .users}}
+                <input list="user-id" name="user-id" autocomplete="off" value="{{.Id}}">
+                {{end}}
+                {{else}}
+                <input list="user-id" name="user-id" autocomplete="off">
+                {{end}}
+                <datalist id="user-id">
+                    {{range .users}}
+                    <option value="{{.Id}}"></option>
+                    {{end}}
+            </div>
+
+            {{if .portfolio}}
+            <input type='hidden' name='method' value=put />
+            {{end}}
+            <div>
+                {{with .portfolio}}
+                <input type="submit" value="Update Portfolio">
+                {{else}}
+                <input type="submit" value="Create Portfolio">
+                {{end}}
+            </div>
+        </form>
+</div>
+
+{{template "footer.html" .}}

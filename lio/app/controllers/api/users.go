@@ -1,8 +1,8 @@
 package api
 
 import (
-	"creative-portfolio/app/controllers/helpers"
-	"creative-portfolio/app/models"
+	"creative-portfolio/lio/app/controllers/helpers"
+	"creative-portfolio/lio/app/models"
 	"database/sql"
 	"errors"
 	"net/http"

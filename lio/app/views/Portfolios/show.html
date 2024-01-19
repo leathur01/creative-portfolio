@@ -1,0 +1,19 @@
+{{template "header.html" .}}
+
+<div>
+    {{with .portfolio}}
+    <h1>Portfolio {{.Id}}</h1>
+    <p>Name: {{.Name}}</p>
+    <p>Belonging to the user {{.User.Name}}({{.User.Id}})</p>
+    <a href="/portfolios/{{.Id}}/edit"><button>Edit</button></a>
+    <form action="/users/{{.Id}}" method="POST">
+        <input type='hidden' name="method" value="delete" />
+        <input type="submit" value="Delete">
+    </form>
+
+    {{else}}
+    <p>The user does not exist</p>
+    {{end}}
+</div>
+
+{{template "footer.html" .}}

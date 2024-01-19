@@ -20,6 +20,8 @@
                 <label>Email</label>
                 <input type="text" name="email" value="{{.user.Email}}">
             </div>
+            <!-- If there is a user, this means this post is used to update the user resource
+            so we send a hidden field of method put because browser supports only post and get -->
             {{if .user}}
             <input type='hidden' name='method' value=put />
             {{end}}
