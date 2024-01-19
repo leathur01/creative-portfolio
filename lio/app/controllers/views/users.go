@@ -54,7 +54,7 @@ func (c UserView) Get() revel.Result {
 		return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
 	}
 
-	user, err := models.GettUser(userId)
+	user, err := models.GetUser(userId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return helpers.NotFoundResponse(data, c.Controller)
@@ -88,7 +88,7 @@ func (c UserView) Update() revel.Result {
 		return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
 	}
 
-	user, err := models.GettUser(userId)
+	user, err := models.GetUser(userId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return helpers.NotFoundResponse(data, c.Controller)
@@ -129,7 +129,7 @@ func (c UserView) Delete() revel.Result {
 	err = models.DeleteUser(userId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
+			return helpers.NotFoundResponse(data, c.Controller)
 		}
 
 		return helpers.ServerErrorResponse(data, err, c.Controller)
@@ -150,7 +150,7 @@ func (c UserView) Form() revel.Result {
 			return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
 		}
 
-		user, err := models.GettUser(userId)
+		user, err := models.GetUser(userId)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				return helpers.NotFoundResponse(data, c.Controller)

@@ -172,40 +172,62 @@ func (c PortfolioView) Delete() revel.Result {
 	err = models.DeletePortfolio(portfolioId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
+			return helpers.NotFoundResponse(data, c.Controller)
 		}
 
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
-	return c.RenderJSON(portfolioId)
+	return c.Redirect("/portfolios")
 }
 
 func (c PortfolioView) Form() revel.Result {
 	data := make(map[string]interface{})
 	var users []*models.User
 
-	id := c.Params.Route.Get("id")
-	if id == "" {
-		var err error
-		users, err = models.GetAllUsers()
+	// Return the form to create a portfolio of a specific user
+	// if the user id is specified in the query parameters
+	// The user's id of them form will be populated by this user id parameter
+	id := c.Params.Query.Get("user-id")
+	if id != "" {
+		userId, err := strconv.Atoi(id)
 		if err != nil {
+			return helpers.BadRequestResponse(data, err.Error(), c.Controller)
+		}
+
+		user, err := models.GetUser(userId)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return helpers.NotFoundResponse(data, c.Controller)
+			}
 			return helpers.ServerErrorResponse(data, err, c.Controller)
 		}
+		users = append(users, user)
+
 	} else {
-		portfolioId, err := strconv.Atoi(id)
-		if err != nil {
-			return helpers.BadRequestResponse(data, "invalid id parameter", c.Controller)
+		id = c.Params.Route.Get("id")
+		if id == "" {
+			var err error
+			users, err = models.GetAllUsers()
+			if err != nil {
+				return helpers.ServerErrorResponse(data, err, c.Controller)
+			}
+		} else {
+
+			// Return the update form of a portfolio since there is a portfolio id
+			portfolioId, err := strconv.Atoi(id)
+			if err != nil {
+				return helpers.BadRequestResponse(data, "invalid id parameter", c.Controller)
+			}
+
+			portfolio, err := models.GetPortfolio(portfolioId)
+			if err != nil {
+				return helpers.ServerErrorResponse(data, err, c.Controller)
+			}
+
+			users = append(users, portfolio.User)
+			c.ViewArgs["portfolio"] = portfolio
 		}
-
-		portfolio, err := models.GetPortfolio(portfolioId)
-		if err != nil {
-			return helpers.ServerErrorResponse(data, err, c.Controller)
-		}
-
-		users = []*models.User{portfolio.User}
-
-		c.ViewArgs["portfolio"] = portfolio
 	}
 
 	c.ViewArgs["users"] = users

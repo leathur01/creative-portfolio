@@ -28,7 +28,7 @@ func (c Portfolios) Create() revel.Result {
 		return helpers.BadRequestResponse(data, err.Error(), c.Controller)
 	}
 
-	user, err := models.GettUser(input.UserId)
+	user, err := models.GetUser(input.UserId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return helpers.NotFoundResponse(data, c.Controller)
@@ -182,7 +182,7 @@ func (c Portfolios) Delete() revel.Result {
 	err = models.DeletePortfolio(portfolioId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
+			return helpers.NotFoundResponse(data, c.Controller)
 		}
 
 		return helpers.ServerErrorResponse(data, err, c.Controller)

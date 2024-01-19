@@ -53,7 +53,7 @@ func InsertUser(u User) error {
 	return err
 }
 
-func GettUser(id int) (*User, error) {
+func GetUser(id int) (*User, error) {
 	if id < 1 {
 		return nil, sql.ErrNoRows
 	}

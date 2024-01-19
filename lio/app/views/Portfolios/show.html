@@ -6,7 +6,7 @@
     <p>Name: {{.Name}}</p>
     <p>Belonging to the user {{.User.Name}}({{.User.Id}})</p>
     <a href="/portfolios/{{.Id}}/edit"><button>Edit</button></a>
-    <form action="/users/{{.Id}}" method="POST">
+    <form action="/portfolios/{{.Id}}" method="POST">
         <input type='hidden' name="method" value="delete" />
         <input type="submit" value="Delete">
     </form>

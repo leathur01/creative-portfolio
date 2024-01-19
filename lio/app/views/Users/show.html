@@ -11,6 +11,10 @@
         <input type="submit" value="Delete">
     </form>
 
+    <a href="/portfolios/new?user-id={{.Id}}">
+        <button>Create Portfolio</button>
+    </a>
+
     {{else}}
     <p>The user does not exist</p>
     {{end}}
