@@ -35,7 +35,7 @@ func (t *AppTest) InsertPortfolio() {
 	portfolio.Name = "media"
 	portfolio.User = &user
 
-	err := models.InsertPortfolio(portfolio)
+	_, err := models.InsertPortfolio(portfolio)
 	if err != nil {
 		revel.AppLog.Fatal(err.Error())
 	}
