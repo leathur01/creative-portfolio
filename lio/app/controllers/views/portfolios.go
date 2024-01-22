@@ -47,12 +47,12 @@ func (c PortfolioView) Create(portfolio *models.Portfolio) revel.Result {
 		return c.Redirect("portfolios/new")
 	}
 
-	err := models.InsertPortfolio(*portfolio)
+	generatedId, err := models.InsertPortfolio(*portfolio)
 	if err != nil {
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
-	return c.Redirect("/portfolios")
+	return c.Redirect("/portfolios/%d", generatedId)
 }
 
 func (c PortfolioView) Get() revel.Result {

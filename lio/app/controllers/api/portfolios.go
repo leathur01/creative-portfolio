@@ -49,7 +49,7 @@ func (c Portfolios) Create() revel.Result {
 		return helpers.FailedValidationResponse(data, c.Validation.Errors, c.Controller)
 	}
 
-	err = models.InsertPortfolio(portfolio)
+	_, err = models.InsertPortfolio(portfolio)
 	if err != nil {
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}

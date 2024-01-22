@@ -41,7 +41,7 @@ func (c Users) Create() revel.Result {
 		return helpers.FailedValidationResponse(data, c.Validation.Errors, c.Controller)
 	}
 
-	err = models.InsertUser(user)
+	_, err = models.InsertUser(user)
 	if err != nil {
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}

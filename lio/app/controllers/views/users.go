@@ -35,12 +35,12 @@ func (c UserView) Create(user *models.User) revel.Result {
 		return c.Redirect("/users/new")
 	}
 
-	err := models.InsertUser(*user)
+	generatedId, err := models.InsertUser(*user)
 	if err != nil {
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
-	return c.Redirect("/users")
+	return c.Redirect("/users/%d", generatedId)
 }
 
 func (c UserView) Get() revel.Result {
