@@ -30,17 +30,13 @@ func (u *User) String() string {
 	return fmt.Sprintf("User(%s, %d)", u.Name, u.Id)
 }
 
-func (u *User) Validate(v *revel.Validation) {
-	v.Check(u.Name,
-		revel.Required{},
-		revel.MaxSize{Max: 15},
-		revel.MinSize{Min: 4},
-	).Key("user name")
+func (user *User) Validate(v *revel.Validation) {
+	v.Required(user.Name)
+	v.MaxSize(user.Name, 25)
+	v.MinSize(user.Name, 3)
 
-	v.Check(u.Email,
-		revel.Required{},
-		revel.Match{Regexp: emailRegex},
-	).Key("user email")
+	v.Required(user.Email)
+	v.Match(user.Email, emailRegex).Message("The email address appears to be invalid")
 }
 
 func InsertUser(u User) error {
