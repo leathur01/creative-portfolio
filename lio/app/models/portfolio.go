@@ -31,6 +31,10 @@ func (p *Portfolio) String() string {
 func (portfolio *Portfolio) Validate(v *revel.Validation) {
 	v.Required(portfolio.Name)
 	v.MaxSize(portfolio.Name, 50)
+	v.MinSize(portfolio.Name, 3)
+
+	v.Min(portfolio.User.Id, 1)
+	v.Required(portfolio.User.Id)
 }
 
 func InsertPortfolio(p Portfolio) error {

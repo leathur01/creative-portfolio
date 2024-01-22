@@ -14,7 +14,14 @@
             {{end}}
             <div>
                 <label>Name</label>
-                <input type="text" name="name" value="{{.portfolio.Name}}">
+                {{with $field := field "portfolio.Name" .}}
+                {{if $field.Flash}}
+                <input type="text" id="name" name="portfolio.Name" value="{{$field.Flash}}">
+                {{else}}
+                <input type="text" id="name" name="portfolio.Name" value="{{$.portfolio.Name}}">
+                {{end}}
+                <span style="color: red;">{{$field.Error}}</span>
+                {{end}}
             </div>
 
             <div>
@@ -22,6 +29,8 @@
                 {{$userCount := len .users}}
                 {{if eq $userCount 1}}
                 {{range .users}}
+                <!-- Set default value of the user-id field 
+                when the client want to create a portfolio for a specific user -->
                 <input list="user-id" name="user-id" autocomplete="off" value="{{.Id}}">
                 {{end}}
                 {{else}}
@@ -31,7 +40,11 @@
                     {{range .users}}
                     <option value="{{.Id}}"></option>
                     {{end}}
+                </datalist>
+
+                <span style="color: red;">{{index .errors "User.Id"}}</span>
             </div>
+
 
             {{if .portfolio}}
             <input type='hidden' name='method' value=put />

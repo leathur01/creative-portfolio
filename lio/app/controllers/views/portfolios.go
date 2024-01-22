@@ -15,12 +15,12 @@ type PortfolioView struct {
 	*revel.Controller
 }
 
-func (c PortfolioView) Create() revel.Result {
+func (c PortfolioView) Create(portfolio *models.Portfolio) revel.Result {
 	// http form only supports post and get
 	// This code forward the request to the proper request handler
 	method := c.Params.Form.Get("method")
 	if method == "put" {
-		return c.Update()
+		return c.Update(portfolio)
 	} else if method == "delete" {
 		return c.Delete()
 	}
@@ -29,23 +29,25 @@ func (c PortfolioView) Create() revel.Result {
 
 	user := models.NewUser()
 	userId := c.Params.Form.Get("user-id")
-	var err error
-	user.Id, err = strconv.Atoi(userId)
-	if err != nil {
-		// TODO: Redirect user to the form and display errors
-		return helpers.BadRequestResponse(data, "invalid id parameter", c.Controller)
+	if userId != "" {
+		var err error
+		user.Id, err = strconv.Atoi(userId)
+		if err != nil {
+			// TODO: Redirect user to the form and display errors
+			return helpers.BadRequestResponse(data, "invalid id parameter", c.Controller)
+		}
 	}
-
-	portfolio := models.NewPortfolio()
-	portfolio.Name = c.Params.Form.Get("name")
 	portfolio.User = &user
 
 	portfolio.Validate(c.Validation)
 	if c.Validation.HasErrors() {
-		return helpers.FailedValidationResponse(data, c.Validation.Errors, c.Controller)
+		c.Validation.Keep()
+		c.FlashParams()
+
+		return c.Redirect("portfolios/new")
 	}
 
-	err = models.InsertPortfolio(portfolio)
+	err := models.InsertPortfolio(*portfolio)
 	if err != nil {
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
@@ -119,7 +121,7 @@ func (c PortfolioView) GetAll() revel.Result {
 	return c.RenderTemplate("Portfolios/index.html")
 }
 
-func (c PortfolioView) Update() revel.Result {
+func (c PortfolioView) Update(portfolio *models.Portfolio) revel.Result {
 	data := make(map[string]interface{})
 
 	id := c.Params.Route.Get("id")
@@ -128,7 +130,8 @@ func (c PortfolioView) Update() revel.Result {
 		return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
 	}
 
-	portfolio, err := models.GetPortfolio(portfolioId)
+	// Check if the portfolio exists
+	temp, err := models.GetPortfolio(portfolioId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return helpers.NotFoundResponse(data, c.Controller)
@@ -136,18 +139,23 @@ func (c PortfolioView) Update() revel.Result {
 
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
+	portfolio.Id = temp.Id
+	tempUser := models.NewUser()
+	portfolio.User = &tempUser
+	portfolio.User.Id = temp.User.Id
 
 	// Prevent cyclic json
 	// We should not show null value when the data is actually exist
 	// With null value, omitempty will not marshlle the field into json
-	// This is equivilent to having a DTO
+	// TODO: Refactor to DTO
 	portfolio.User.Portfolios = []*models.Portfolio{}
-
-	portfolio.Name = c.Params.Form.Get("name")
 
 	portfolio.Validate(c.Validation)
 	if c.Validation.HasErrors() {
-		return helpers.FailedValidationResponse(data, c.Validation.Errors, c.Controller)
+		c.Validation.Keep()
+		c.FlashParams()
+
+		return c.Redirect("/portfolios/%d/edit", portfolio.Id)
 	}
 
 	err = models.UpdatePortfolio(*portfolio)
