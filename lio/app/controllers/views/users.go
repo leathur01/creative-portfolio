@@ -86,7 +86,7 @@ func (c UserView) Update(user *models.User) revel.Result {
 		return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
 	}
 
-	// Check if the user exist
+	// Check if the user exists
 	temp, err := models.GetUser(userId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -102,7 +102,7 @@ func (c UserView) Update(user *models.User) revel.Result {
 		c.Validation.Keep()
 		c.FlashParams()
 
-		return c.Redirect("/users/%d/edit", userId)
+		return c.Redirect("/users/%d/edit", user.Id)
 	}
 
 	err = models.UpdateUser(*user)
