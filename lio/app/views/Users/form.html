@@ -10,16 +10,32 @@
     {{with .user}}
     <form action="/users/{{.Id}}" method="POST">
         {{else}}
+        {{.flash.error}}
         <form action="/users" method="POST">
             {{end}}
             <div>
                 <label>Username</label>
-                <input type="text" name="name" value="{{.user.Name}}">
+                {{with $field := field "user.Name" .}}
+                {{if $field.Flash}}
+                <input type="text" id="name" name="user.Name" value="{{$field.Flash}}">
+                {{else}}
+                <input type="text" id="name" name="user.Name" value="{{$.user.Name}}">
+                {{end}}
+                <span style="color: red;">{{$field.Error}}</span>
+                {{end}}
             </div>
             <div>
                 <label>Email</label>
-                <input type="text" name="email" value="{{.user.Email}}">
+                {{with $field := field "user.Email" .}}
+                {{if $field.Flash}}
+                <input type="text" id="email" name="user.Email" value="{{$field.Flash}}">
+                {{else}}
+                <input type="text" id="email" name="user.Email" value="{{$.user.Email}}">
+                {{end}}
+                <span style="color: red;">{{$field.Error}}</span>
+                {{end}}
             </div>
+
             <!-- If there is a user, this means this post is used to update the user resource
             so we send a hidden field of method put because browser supports only post and get -->
             {{if .user}}

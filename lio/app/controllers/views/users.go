@@ -15,29 +15,27 @@ type UserView struct {
 	*revel.Controller
 }
 
-func (c UserView) Create() revel.Result {
+func (c UserView) Create(user *models.User) revel.Result {
 	// http form only supports post and get
 	// This code forward the request to the proper request handler
 	method := c.Params.Form.Get("method")
 	if method == "put" {
-		return c.Update()
+		return c.Update(user)
 	} else if method == "delete" {
 		return c.Delete()
 	}
 
 	data := make(map[string]interface{})
-	user := models.NewUser()
 
-	user.Name = c.Params.Form.Get("name")
-	user.Email = c.Params.Form.Get("email")
 	user.Validate(c.Validation)
 	if c.Validation.HasErrors() {
-		// TODO:
-		// Redirect user to the form and display errors
-		return helpers.FailedValidationResponse(data, c.Validation.Errors, c.Controller)
+		c.Validation.Keep()
+		c.FlashParams()
+
+		return c.Redirect("/users/new")
 	}
 
-	err := models.InsertUser(user)
+	err := models.InsertUser(*user)
 	if err != nil {
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
@@ -79,7 +77,7 @@ func (c UserView) GetAll() revel.Result {
 	return c.RenderTemplate("Users/index.html")
 }
 
-func (c UserView) Update() revel.Result {
+func (c UserView) Update(user *models.User) revel.Result {
 	data := make(map[string]interface{})
 
 	id := c.Params.Route.Get("id")
@@ -88,7 +86,8 @@ func (c UserView) Update() revel.Result {
 		return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
 	}
 
-	user, err := models.GetUser(userId)
+	// Check if the user exist
+	temp, err := models.GetUser(userId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return helpers.NotFoundResponse(data, c.Controller)
@@ -96,15 +95,14 @@ func (c UserView) Update() revel.Result {
 
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
-
-	user.Name = c.Params.Form.Get("name")
-	user.Email = c.Params.Get("email")
+	user.Id = temp.Id
 
 	user.Validate(c.Validation)
 	if c.Validation.HasErrors() {
-		// TODO:
-		// Redirect user to the form and display errors
-		return helpers.FailedValidationResponse(data, c.Validation.Errors, c.Controller)
+		c.Validation.Keep()
+		c.FlashParams()
+
+		return c.Redirect("/users/%d/edit", userId)
 	}
 
 	err = models.UpdateUser(*user)
@@ -158,6 +156,7 @@ func (c UserView) Form() revel.Result {
 
 			return helpers.ServerErrorResponse(data, err, c.Controller)
 		}
+
 		c.ViewArgs["user"] = user
 	}
 

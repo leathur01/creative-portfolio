@@ -32,7 +32,7 @@ func (u *User) String() string {
 
 func (user *User) Validate(v *revel.Validation) {
 	v.Required(user.Name)
-	v.MaxSize(user.Name, 25)
+	v.MaxSize(user.Name, 50)
 	v.MinSize(user.Name, 3)
 
 	v.Required(user.Email)
