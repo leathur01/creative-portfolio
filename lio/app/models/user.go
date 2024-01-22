@@ -39,14 +39,19 @@ func (user *User) Validate(v *revel.Validation) {
 	v.Match(user.Email, emailRegex).Message("The email address appears to be invalid")
 }
 
-func InsertUser(u User) error {
+func InsertUser(u User) (int, error) {
 	query := `
 		INSERT INTO "user"(name, email) 
-		VALUES($1, $2);
+		VALUES($1, $2)
+		RETURNING id;
 	`
+	var createdUsesrId int
 	args := []interface{}{u.Name, u.Email}
-	_, err := app.DB.Exec(query, args...)
-	return err
+	err := app.DB.QueryRow(query, args...).Scan(
+		&createdUsesrId,
+	)
+
+	return createdUsesrId, err
 }
 
 func GetUser(id int) (*User, error) {

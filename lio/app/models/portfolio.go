@@ -37,15 +37,19 @@ func (portfolio *Portfolio) Validate(v *revel.Validation) {
 	v.Required(portfolio.User.Id)
 }
 
-func InsertPortfolio(p Portfolio) error {
+func InsertPortfolio(p Portfolio) (int, error) {
 	query := `
 		INSERT INTO portfolio(name, user_id) 
-		VALUES($1, $2);
+		VALUES($1, $2)
+		RETURNING id;
 	`
-
+	var createdPortfolioId int
 	args := []interface{}{p.Name, p.User.Id}
-	_, err := app.DB.Exec(query, args...)
-	return err
+	err := app.DB.QueryRow(query, args...).Scan(
+		&createdPortfolioId,
+	)
+
+	return createdPortfolioId, err
 }
 
 func GetPortfolio(id int) (*Portfolio, error) {
