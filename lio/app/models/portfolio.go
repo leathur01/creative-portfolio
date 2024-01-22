@@ -28,11 +28,9 @@ func (p *Portfolio) String() string {
 	return fmt.Sprintf("Portfolio(%s, %d)", p.Name, p.User.Id)
 }
 
-func (p *Portfolio) Validate(v *revel.Validation) {
-	v.Check(p.Name,
-		revel.Required{},
-		revel.MaxSize{Max: 50},
-	).Key("portfolio name")
+func (portfolio *Portfolio) Validate(v *revel.Validation) {
+	v.Required(portfolio.Name)
+	v.MaxSize(portfolio.Name, 50)
 }
 
 func InsertPortfolio(p Portfolio) error {
