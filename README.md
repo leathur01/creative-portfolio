@@ -27,3 +27,4 @@ host/creative_portfolio up
 
    At the root folder of the repository, run this command  
    revel run -a lio/  
+   Access the application on localhost:8080  
