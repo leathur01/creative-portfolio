@@ -20,8 +20,7 @@ Install migration tool: https://github.com/golang-migrate/migrate/tree/master/cm
    connStr := "postgres://db-username:your-db-server-password@localhost/db-name"  
 
 5. Run the migration scripts  
-   migrate -path ./lio/migrations -database postgres://postgres:password@local
-host/creative_portfolio up  
+   migrate -path ./lio/migrations -database postgres://postgres:password@localhost/creative_portfolio up  
 
 ### Start web server  
 
