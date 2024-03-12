@@ -48,10 +48,3 @@ GET /api/portfolios/:id Portfolios.Get
 GET /api/portfolios Portfolios.GetAll
 PUT /api/portfolios/:id Portfolios.Update
 DELETE /api/portfolios/:id Portfolios.Delete
-
-<!-- Carousel API endpoints -->
-POST /api/carousels
-GET /api/carousels/:id
-GET /api/portfolios
-PUT /api/portfolios:id
-DELETE /api/portfolios/:id
