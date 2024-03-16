@@ -45,7 +45,7 @@ func (c CarouselView) Upload(carouselImage []byte, carousel *models.Carousel) re
 	uuidFileName := uuid.String() + "." + carousel.FileType
 	carousel.FilePath = uuidFileName
 
-	filepath := "storage/Image/" + carousel.FilePath
+	filepath := "storage/image/" + carousel.FilePath
 	err = os.WriteFile(filepath, carouselImage, 0644)
 	if err != nil {
 		return helpers.ServerErrorResponse(data, err, c.Controller)

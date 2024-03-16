@@ -23,7 +23,7 @@ type Carousel struct {
 const (
 	_      = iota             // iota = 0, value is discarded
 	KB int = 1 << (10 * iota) // iota = 1, KB = 1024
-	MB                        // iota = 2, MB = 1 << (10 * 2) = 1.048.576 1,042,592
+	MB                        // iota = 2, MB = 1 << (10 * 2) = 1.048.576
 	GB                        // iota = 3, GB = 1 << (10 * 3) = 1073741824
 )
 

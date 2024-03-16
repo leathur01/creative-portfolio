@@ -5,7 +5,7 @@ GET / App.Index
 GET /favicon.ico 404
 
 GET /public/*filepath Static.Serve("public")
-GET /carousel-images/*filepath Static.Serve("storage/Image")
+GET /carousel-images/*filepath Static.Serve("storage/image")
 
 <!-- User server-rendering endpoints -->
 <!-- http form only supports post and get
