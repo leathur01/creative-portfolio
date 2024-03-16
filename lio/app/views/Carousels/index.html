@@ -1,0 +1,23 @@
+{{set . "title" "Creative Portfolio"}}
+{{template "header.html" .}}
+
+<h2>All carousels</h2>
+<a href="/carousels/new"><button>Upload a new carousel image</button></a>
+<table style="width:100%">
+    <tr>
+        <th>Id</th>
+        <th>Image</th>
+        <th>Order</th>
+        <th>Details</th>
+    </tr>
+    {{range .carousels}}
+    <tr>
+        <td>{{.Id}}</td>
+        <td><img src="/carousel-images/{{.FilePath}}" alt=""></td>
+        <td>{{.Order}}</td>
+        <td>{{.FilePath}}</td>
+    </tr>
+    {{end}}
+</table>
+
+{{template "footer.html" .}}

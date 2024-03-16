@@ -1,51 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
+{{set . "title" "Creative Portfolio"}}
+{{template "header.html" .}}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creative Portfolio</title>
-    <style>
-        table,
-        th,
-        td {
-            border: 1px solid black;
-        }
-    </style>
-</head>
+<h2>All portfolios {{if .userId}} of user {{.userId}} {{end}}</h2>
+<a href="/portfolios/new"><button>Create a portfolio</button></a>
+<a href="/portfolios"><button>View all portfolios</button></a>
 
-<body>
-    <a href="/users"><button>All users</button></a>
-    <a href="/portfolios"><button>All portfolios</button></a>
-
-    <h2>All portfolios {{if .userId}} of user {{.userId}} {{end}}</h2>
-    <a href="/portfolios/new"><button>Create a portfolio</button></a>
-    <a href="/portfolios"><button>View all portfolios</button></a>
-
-    <form action="/portfolios">
-        <label for="">Filter by user's Id</label>
-        <input list="user-id" name="user-id" autocomplete="off">
-        <datalist id="user-id">
-            {{range .users}}
-            <option value="{{.Id}}"></option>
-            {{end}}
-        </datalist>
-        <input type="submit" Value="Filter">
-    </form>
-
-    <table style="width:100%">
-        <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Details</th>
-        </tr>
-        {{range .portfolios}}
-        <tr>
-            <td>{{.Id}}</td>
-            <td>{{.Name}}</td>
-            <td><a href="http://localhost:8080/portfolios/{{.Id}}">view</a></td>
-        </tr>
+<form action="/portfolios">
+    <label for="">Filter by user's Id</label>
+    <input list="user-id" name="user-id" autocomplete="off">
+    <datalist id="user-id">
+        {{range .users}}
+        <option value="{{.Id}}"></option>
         {{end}}
-    </table>
+    </datalist>
+    <input type="submit" Value="Filter">
+</form>
 
-    {{template "footer.html" .}}
+<table style="width:100%">
+    <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Details</th>
+    </tr>
+    {{range .portfolios}}
+    <tr>
+        <td>{{.Id}}</td>
+        <td>{{.Name}}</td>
+        <td><a href="http://localhost:8080/portfolios/{{.Id}}">view</a></td>
+    </tr>
+    {{end}}
+</table>
+
+{{template "footer.html" .}}
