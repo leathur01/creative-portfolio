@@ -1,0 +1,20 @@
+{{set . "title" "Upload Carousel"}}
+{{template "header.html" .}}
+
+<div class="span6">
+    <form action="/carousels" method="post" enctype="multipart/form-data">
+        <div>
+            <label for="order">Order of the carousel on the website</label>
+            <input type="number" id="order" name="carousel.Order" min="1" max="5">
+        </div>
+
+        <div>
+            <label for="image"><strong>Carousel image</strong></label>
+            <input type="file" id="image" name="carouselImage">
+        </div>
+        <hr>
+        <input type="submit" value="Upload" class="btn btn-large btn-success">
+    </form>
+</div>
+
+{{template "footer.html" .}}
