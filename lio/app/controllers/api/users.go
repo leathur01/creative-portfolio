@@ -99,6 +99,7 @@ func (c Users) Update() revel.Result {
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
+	// Use an anonymous struct to avoid unmarshal null value directly to the populated user, which can override the old data that doesn't need to be updated
 	var input struct {
 		Name  *string `json:"name"`
 		Email *string `json:"email"`

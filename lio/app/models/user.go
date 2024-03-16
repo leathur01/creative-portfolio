@@ -14,7 +14,7 @@ type User struct {
 	Id         int          `json:"id,omitempty"`
 	Name       string       `json:"name,omitempty"`
 	Email      string       `json:"email,omitempty"`
-	CreatedAt  time.Time    `json:"created-at,omitempty"`
+	CreatedAt  time.Time    `json:"createdAt,omitempty"`
 	Portfolios []*Portfolio `json:"portfolios,omitempty"`
 }
 

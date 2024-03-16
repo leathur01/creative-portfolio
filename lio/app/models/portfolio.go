@@ -12,7 +12,7 @@ import (
 type Portfolio struct {
 	Id        int       `json:"id,omitempty"`
 	Name      string    `json:"name,omitempty"`
-	CreatedAt time.Time `json:"created-at,omitempty"`
+	CreatedAt time.Time `json:"createdAt,omitempty"`
 	User      *User     `json:"user,omitempty"`
 }
 
