@@ -59,6 +59,18 @@ func (c CarouselView) Upload(carouselImage []byte, carousel *models.Carousel) re
 	return c.RenderJSON(carousel)
 }
 
+func (c CarouselView) GetAll() revel.Result {
+	data := make(map[string]interface{})
+
+	carousels, err := models.GetAllCarousel()
+	if err != nil {
+		return helpers.ServerErrorResponse(data, err, c.Controller)
+	}
+
+	c.ViewArgs["carousels"] = carousels
+	return c.RenderTemplate("Carousels/index.html")
+}
+
 func (c CarouselView) Form() revel.Result {
 	return c.RenderTemplate("Carousels/form.html")
 }

@@ -5,6 +5,7 @@ GET / App.Index
 GET /favicon.ico 404
 
 GET /public/*filepath Static.Serve("public")
+GET /carousel-images/*filepath Static.Serve("storage/Image")
 
 <!-- User server-rendering endpoints -->
 <!-- http form only supports post and get
@@ -50,3 +51,4 @@ DELETE /api/portfolios/:id Portfolios.Delete
 <!-- Carousel server-rendering endpoints -->
 POST /carousels CarouselView.Upload
 GET /carousels/new CarouselView.Form
+GET /carousels CarouselView.GetAll

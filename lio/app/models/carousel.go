@@ -16,7 +16,7 @@ type Carousel struct {
 	FilePath    string `json:"filePath"`
 	FileSize    int    `json:"fileSize"`
 	FileType    string `json:"fileType"`
-	ContentType string
+	ContentType string // Used only for validation
 	UploadedAt  time.Time
 }
 
@@ -69,4 +69,42 @@ func InsertCarousel(c Carousel) (int, error) {
 	)
 
 	return uploadedImageId, err
+}
+
+func GetAllCarousel() ([]*Carousel, error) {
+	query := `
+		SELECT *
+		FROM carousel
+		ORDER by id ASC
+	`
+	rows, err := app.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	carousels := []*Carousel{}
+	for rows.Next() {
+		var carousel Carousel
+		err := rows.Scan(
+			&carousel.Id,
+			&carousel.Order,
+			&carousel.FilePath,
+			&carousel.FileSize,
+			&carousel.FileType,
+			&carousel.UploadedAt,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		carousels = append(carousels, &carousel)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return carousels, nil
 }
