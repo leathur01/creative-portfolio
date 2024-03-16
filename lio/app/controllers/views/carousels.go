@@ -56,7 +56,7 @@ func (c CarouselView) Upload(carouselImage []byte, carousel *models.Carousel) re
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
-	return c.RenderJSON(carousel)
+	return c.RenderTemplate("Carousels/index.html")
 }
 
 func (c CarouselView) GetAll() revel.Result {
