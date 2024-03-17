@@ -50,5 +50,10 @@ DELETE /api/portfolios/:id Portfolios.Delete
 
 <!-- Carousel server-rendering endpoints -->
 POST /carousels CarouselView.Upload
+<!-- This route is used to forward the request
+to the proper request handler -->
+POST /carousels/:id CarouselView.Upload
 GET /carousels/new CarouselView.Form
+GET /carousels/:id CarouselView.Get
 GET /carousels CarouselView.GetAll
+PUT /carousels/:id CarouselView.Update

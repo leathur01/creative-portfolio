@@ -4,6 +4,7 @@ package models
 
 import (
 	"creative-portfolio/lio/app"
+	"database/sql"
 	"regexp"
 	"time"
 
@@ -28,7 +29,7 @@ const (
 )
 
 // TODO: Allow the admin to set this limitation
-var carouselLimitOnUI = 5
+var CarouselLimitOnUI = 5
 var fileTypeRegex = regexp.MustCompile("^(jpeg|png)$")
 var contentTypeRegex = regexp.MustCompile("^image$")
 
@@ -47,9 +48,9 @@ func NewCarousel() Carousel {
 func (carousel *Carousel) Validate(v *revel.Validation) {
 	// For some unknown reasons, revel doesn't set the key value for this validation
 	// So I set the key manually
-	validationResult := v.Range(carousel.Order, 0, carouselLimitOnUI)
+	validationResult := v.Range(carousel.Order, 0, CarouselLimitOnUI)
 	validationResult.Key("carousel order")
-	validationResult.Message(`value Out of Range: The number you've entered is out of range. Please enter a value between 0 and %d.`, carouselLimitOnUI)
+	validationResult.Message(`value Out of Range: The number you've entered is out of range. Please enter a value between 0 and %d.`, CarouselLimitOnUI)
 
 	v.Required(carousel.FileSize)
 	validationResult = v.Range(carousel.FileSize, 2*KB, 1*MB)
@@ -127,4 +128,32 @@ func UpdateCarousel(id, order int) error {
 	args := []interface{}{order, id}
 	_, err := app.DB.Exec(query, args...)
 	return err
+}
+
+func GetCarousel(id int) (*Carousel, error) {
+	if id < 1 {
+		return nil, sql.ErrNoRows
+	}
+
+	query := `
+		select id, "order", file_path, file_size, file_type, uploaded_at
+		from carousel
+		where id = $1;
+	`
+
+	carousel := NewCarousel()
+	err := app.DB.QueryRow(query, id).Scan(
+		&carousel.Id,
+		&carousel.Order,
+		&carousel.FilePath,
+		&carousel.FileSize,
+		&carousel.FileType,
+		&carousel.UploadedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &carousel, nil
 }

@@ -4,9 +4,12 @@ import (
 	"bytes"
 	"creative-portfolio/lio/app/controllers/helpers"
 	"creative-portfolio/lio/app/models"
+	"database/sql"
+	"errors"
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/revel/revel"
@@ -45,6 +48,11 @@ func (c CarouselView) PopulateCarouselOrderCache() revel.Result {
 // TODO: Extract some code into the helper or service file
 func (c CarouselView) Upload(carouselImage []byte, carousel *models.Carousel) revel.Result {
 	data := make(map[string]interface{})
+
+	method := c.Params.Form.Get("method")
+	if method == "put" {
+		return c.Update(c.Params.Route.Get("id"), c.Params.Form.Get("order"))
+	}
 
 	contentType := http.DetectContentType(carouselImage)
 	// Take the content type in the first part
@@ -93,6 +101,36 @@ func (c CarouselView) Upload(carouselImage []byte, carousel *models.Carousel) re
 	return c.Redirect("/carousels")
 }
 
+func (c CarouselView) Get() revel.Result {
+	data := make(map[string]interface{})
+
+	id := c.Params.Route.Get("id")
+	carouselId, err := strconv.Atoi(id)
+	if err != nil {
+		return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
+	}
+
+	carousel, err := models.GetCarousel(carouselId)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return helpers.NotFoundResponse(data, c.Controller)
+		}
+
+		return helpers.ServerErrorResponse(data, err, c.Controller)
+	}
+
+	// 0 value is used for null order.
+	// So we need to populate the array up to 6 value
+	allowedOrders := make([]int, models.CarouselLimitOnUI+1)
+	for i := range allowedOrders {
+		allowedOrders[i] = i
+	}
+	c.ViewArgs["allowedOrders"] = allowedOrders
+
+	c.ViewArgs["carousel"] = carousel
+	return c.RenderTemplate("Carousels/show.html")
+}
+
 func (c CarouselView) GetAll() revel.Result {
 	data := make(map[string]interface{})
 
@@ -105,10 +143,36 @@ func (c CarouselView) GetAll() revel.Result {
 	return c.RenderTemplate("Carousels/index.html")
 }
 
+func (c CarouselView) Update(id, order string) revel.Result {
+	data := make(map[string]interface{})
+
+	carouselId, err := strconv.Atoi(id)
+	if err != nil {
+		return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
+	}
+
+	intOrder, err := strconv.Atoi(order)
+	if err != nil {
+		return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
+	}
+
+	oldCarouselId := models.CurrentCarousels.Carousels[intOrder]
+	if oldCarouselId != 0 {
+		err = models.UpdateCarousel(oldCarouselId, 0)
+		if err != nil {
+			return helpers.ServerErrorResponse(data, err, c.Controller)
+		}
+	}
+
+	err = models.UpdateCarousel(carouselId, intOrder)
+	if err != nil {
+		return helpers.ServerErrorResponse(data, err, c.Controller)
+	}
+	models.CurrentCarousels.Carousels[intOrder] = carouselId
+
+	return c.Redirect("/carousels/%d", carouselId)
+}
+
 func (c CarouselView) Form() revel.Result {
 	return c.RenderTemplate("Carousels/form.html")
 }
-
-// func (c CarouselView) Update() revel.Result {
-
-// }
