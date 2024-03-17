@@ -29,10 +29,16 @@ const (
 
 // TODO: Allow the admin to set this limitation
 var carouselLimitOnUI = 5
-var currentCarousels = make(map[int]int)
-var fileNameRegex = regexp.MustCompile("^[a-zA-Z0-9-._'() ]+$")
 var fileTypeRegex = regexp.MustCompile("^(jpeg|png)$")
 var contentTypeRegex = regexp.MustCompile("^image$")
+
+var CurrentCarousels = struct {
+	Initialized bool
+	Carousels   map[int]int
+}{
+	Initialized: false,
+	Carousels:   make(map[int]int),
+}
 
 func NewCarousel() Carousel {
 	return Carousel{}
@@ -41,10 +47,12 @@ func NewCarousel() Carousel {
 func (carousel *Carousel) Validate(v *revel.Validation) {
 	// For some unknown reasons, revel doesn't set the key value for this validation
 	// So I set the key manually
-	v.Range(carousel.Order, 0, carouselLimitOnUI).Key("carousel order")
+	validationResult := v.Range(carousel.Order, 0, carouselLimitOnUI)
+	validationResult.Key("carousel order")
+	validationResult.Message(`value Out of Range: The number you've entered is out of range. Please enter a value between 0 and %d.`, carouselLimitOnUI)
 
 	v.Required(carousel.FileSize)
-	validationResult := v.Range(carousel.FileSize, 2*KB, 1*MB)
+	validationResult = v.Range(carousel.FileSize, 2*KB, 1*MB)
 	validationResult.Key("carousel image file size")
 	validationResult.Message("the size of the image has to be between 2KB and 1MB")
 
@@ -71,7 +79,7 @@ func InsertCarousel(c Carousel) (int, error) {
 	return uploadedImageId, err
 }
 
-func GetAllCarousel() ([]*Carousel, error) {
+func GetAllCarousels() ([]*Carousel, error) {
 	query := `
 		SELECT *
 		FROM carousel
@@ -107,4 +115,16 @@ func GetAllCarousel() ([]*Carousel, error) {
 	}
 
 	return carousels, nil
+}
+
+func UpdateCarousel(id, order int) error {
+	query := `
+		UPDATE carousel 
+		SET "order" = $1
+		WHERE id = $2
+	`
+
+	args := []interface{}{order, id}
+	_, err := app.DB.Exec(query, args...)
+	return err
 }

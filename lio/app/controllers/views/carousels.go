@@ -17,6 +17,31 @@ type CarouselView struct {
 	*revel.Controller
 }
 
+func init() {
+	revel.InterceptMethod(CarouselView.PopulateCarouselOrderCache, revel.BEFORE)
+}
+
+func (c CarouselView) PopulateCarouselOrderCache() revel.Result {
+	if models.CurrentCarousels.Initialized {
+		return nil
+	}
+
+	carousels, err := models.GetAllCarousels()
+	if err != nil {
+		data := make(map[string]interface{})
+		return helpers.ServerErrorResponse(data, err, c.Controller)
+	}
+
+	for _, carousel := range carousels {
+		if carousel.Order > 0 {
+			models.CurrentCarousels.Carousels[carousel.Order] = carousel.Id
+		}
+	}
+
+	models.CurrentCarousels.Initialized = true
+	return nil
+}
+
 // TODO: Extract some code into the helper or service file
 func (c CarouselView) Upload(carouselImage []byte, carousel *models.Carousel) revel.Result {
 	data := make(map[string]interface{})
@@ -51,18 +76,27 @@ func (c CarouselView) Upload(carouselImage []byte, carousel *models.Carousel) re
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 
-	_, err = models.InsertCarousel(*carousel)
+	oldCarouselId := models.CurrentCarousels.Carousels[carousel.Order]
+	if oldCarouselId != 0 {
+		err = models.UpdateCarousel(oldCarouselId, 0)
+		if err != nil {
+			return helpers.ServerErrorResponse(data, err, c.Controller)
+		}
+	}
+
+	uploadedCarouselId, err := models.InsertCarousel(*carousel)
 	if err != nil {
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
+	models.CurrentCarousels.Carousels[carousel.Order] = uploadedCarouselId
 
-	return c.RenderTemplate("Carousels/index.html")
+	return c.Redirect("/carousels")
 }
 
 func (c CarouselView) GetAll() revel.Result {
 	data := make(map[string]interface{})
 
-	carousels, err := models.GetAllCarousel()
+	carousels, err := models.GetAllCarousels()
 	if err != nil {
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
@@ -74,3 +108,7 @@ func (c CarouselView) GetAll() revel.Result {
 func (c CarouselView) Form() revel.Result {
 	return c.RenderTemplate("Carousels/form.html")
 }
+
+// func (c CarouselView) Update() revel.Result {
+
+// }
