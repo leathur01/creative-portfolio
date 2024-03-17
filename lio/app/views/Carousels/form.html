@@ -6,12 +6,12 @@
         <div>
             <p>Leave the order field or set it to value 0 if you don't want to this carousel image to be displayed</p>
             <label for="order">Order of the carousel on the website</label>
-            <input type="number" id="order" name="carousel.Order" min=1>
+            <input type="number" id="order" name="carousel.Order" min="0">
         </div>
 
         <div>
             <label for="image"><strong>Carousel image</strong></label>
-            <input type="file" id="image" name="carouselImage">
+            <input type="file" id="image" name="carouselImage" required>
         </div>
 
         <input type="submit" value="Upload" class="btn btn-large btn-success">

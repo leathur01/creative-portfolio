@@ -21,6 +21,12 @@
 
     <p>File size: {{.FileSize}} bytes</p>
     <p>File type: {{.FileType}}</p>
+
+    <form action="/carousels/{{.Id}}" method="post">
+        <input type='hidden' name="method" value="delete" />
+        <input type="submit" value="Delete">
+    </form>
+
     <img src="/carousel-images/{{.FilePath}}" alt="">
 
     {{else}}

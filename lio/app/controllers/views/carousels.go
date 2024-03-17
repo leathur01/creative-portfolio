@@ -29,7 +29,7 @@ func (c CarouselView) PopulateCarouselOrderCache() revel.Result {
 		return nil
 	}
 
-	carousels, err := models.GetAllCarousels()
+	carousels, err := models.GetAllCarouselsForCaching()
 	if err != nil {
 		data := make(map[string]interface{})
 		return helpers.ServerErrorResponse(data, err, c.Controller)
@@ -51,7 +51,9 @@ func (c CarouselView) Upload(carouselImage []byte, carousel *models.Carousel) re
 
 	method := c.Params.Form.Get("method")
 	if method == "put" {
-		return c.Update(c.Params.Route.Get("id"), c.Params.Form.Get("order"))
+		return c.Update()
+	} else if method == "delete" {
+		return c.Delete()
 	}
 
 	contentType := http.DetectContentType(carouselImage)
@@ -143,15 +145,15 @@ func (c CarouselView) GetAll() revel.Result {
 	return c.RenderTemplate("Carousels/index.html")
 }
 
-func (c CarouselView) Update(id, order string) revel.Result {
+func (c CarouselView) Update() revel.Result {
 	data := make(map[string]interface{})
 
-	carouselId, err := strconv.Atoi(id)
+	carouselId, err := strconv.Atoi(c.Params.Route.Get("id"))
 	if err != nil {
 		return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
 	}
 
-	intOrder, err := strconv.Atoi(order)
+	intOrder, err := strconv.Atoi(c.Params.Form.Get("order"))
 	if err != nil {
 		return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
 	}
@@ -171,6 +173,45 @@ func (c CarouselView) Update(id, order string) revel.Result {
 	models.CurrentCarousels.Carousels[intOrder] = carouselId
 
 	return c.Redirect("/carousels/%d", carouselId)
+}
+
+func (c CarouselView) Delete() revel.Result {
+	data := make(map[string]interface{})
+
+	id := c.Params.Route.Get("id")
+	carouselId, err := strconv.Atoi(id)
+	if err != nil {
+		return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
+	}
+
+	carousel, err := models.GetCarousel(carouselId)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return helpers.NotFoundResponse(data, c.Controller)
+		}
+
+		return helpers.ServerErrorResponse(data, err, c.Controller)
+	}
+
+	err = models.DeleteCarousel(carouselId)
+	if err != nil {
+		return helpers.ServerErrorResponse(data, err, c.Controller)
+	}
+
+	// Delete Cache
+	for key, value := range models.CurrentCarousels.Carousels {
+		if value == carouselId {
+			models.CurrentCarousels.Carousels[key] = 0
+		}
+	}
+
+	filePath := "storage/image/" + carousel.FilePath
+	err = os.Remove(filePath)
+	if err != nil {
+		return helpers.ServerErrorResponse(data, err, c.Controller)
+	}
+
+	return c.Redirect("/carousels")
 }
 
 func (c CarouselView) Form() revel.Result {

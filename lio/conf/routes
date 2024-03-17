@@ -57,3 +57,4 @@ GET /carousels/new CarouselView.Form
 GET /carousels/:id CarouselView.Get
 GET /carousels CarouselView.GetAll
 PUT /carousels/:id CarouselView.Update
+DELETE /carousels/:id CarouselView.Delete

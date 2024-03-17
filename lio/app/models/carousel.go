@@ -84,7 +84,7 @@ func GetAllCarousels() ([]*Carousel, error) {
 	query := `
 		SELECT *
 		FROM carousel
-		ORDER by id ASC
+		ORDER by "order" DESC
 	`
 	rows, err := app.DB.Query(query)
 	if err != nil {
@@ -156,4 +156,57 @@ func GetCarousel(id int) (*Carousel, error) {
 	}
 
 	return &carousel, nil
+}
+
+func DeleteCarousel(id int) error {
+	if id < 1 {
+		return sql.ErrNoRows
+	}
+
+	query := `
+		DELETE
+		FROM carousel
+		WHERE id = $1;
+	`
+
+	_, err := app.DB.Exec(query, id)
+	return err
+}
+
+func GetAllCarouselsForCaching() ([]*Carousel, error) {
+	query := `
+	select id, "order", file_path, file_size, file_type, uploaded_at
+	from carousel
+	where "order" > 0;
+`
+	rows, err := app.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	carousels := []*Carousel{}
+	for rows.Next() {
+		var carousel Carousel
+		err := rows.Scan(
+			&carousel.Id,
+			&carousel.Order,
+			&carousel.FilePath,
+			&carousel.FileSize,
+			&carousel.FileType,
+			&carousel.UploadedAt,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		carousels = append(carousels, &carousel)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return carousels, nil
 }
