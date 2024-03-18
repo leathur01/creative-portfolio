@@ -8,7 +8,12 @@
             <p style="color: red;">{{index .errors "Order"}}</p>
 
             <label for="order">Order of the carousel on the website</label>
-            <input type="number" id="order" name="carousel.Order" min="0">
+            <input for="order" list="order" name="carousel.Order" autocomplete="off">
+            <datalist id="order">
+                {{range $order := $.allowedOrders}}
+                <option value="{{$order}}"></option>
+                {{end}}
+            </datalist>
         </div>
 
         <div>

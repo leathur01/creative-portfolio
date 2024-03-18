@@ -221,5 +221,13 @@ func (c CarouselView) Delete() revel.Result {
 }
 
 func (c CarouselView) Form() revel.Result {
+	// 0 value is used for null order.
+	// So we need to populate the array up to 6 value
+	allowedOrders := make([]int, models.CarouselLimitOnUI+1)
+	for i := range allowedOrders {
+		allowedOrders[i] = i
+	}
+
+	c.ViewArgs["allowedOrders"] = allowedOrders
 	return c.RenderTemplate("Carousels/form.html")
 }
