@@ -2,6 +2,14 @@
 {{template "header.html" .}}
 
 <h2>All carousels</h2>
+<form action="/carousels/order-limit" method="post">
+    Order Limit {{.orderLimit}}
+    <div style="margin-bottom: 20px;">
+        <input type="number" id="order" name="orderLimit" min="0">
+        <input type="submit" value="Change the order limit">
+    </div>
+</form>
+
 <a href="/carousels/new"><button>Upload a new carousel image</button></a>
 <table style="width:100%">
     <tr>

@@ -50,6 +50,8 @@ DELETE /api/portfolios/:id Portfolios.Delete
 
 <!-- Carousel server-rendering endpoints -->
 POST /carousels CarouselView.Upload
+<!-- Default POST http method is used if there arent any restful methods left -->
+POST /carousels/order-limit CarouselView.ChangeOrderLimit
 <!-- This route is used to forward the request
 to the proper request handler -->
 POST /carousels/:id CarouselView.Upload
