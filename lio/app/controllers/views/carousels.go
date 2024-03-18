@@ -72,8 +72,14 @@ func (c CarouselView) Upload(carouselImage []byte, carousel *models.Carousel) re
 	carousel.FileSize = int(size)
 
 	carousel.Validate(c.Validation)
+	validationResult := c.Validation.Required(carouselImage)
+	validationResult.Key("carousel image")
+	validationResult.Message("This field is required. Please choose an image")
 	if c.Validation.HasErrors() {
-		return helpers.FailedValidationResponse(data, c.Validation.Errors, c.Controller)
+		c.Validation.Keep()
+		c.FlashParams()
+
+		return c.Redirect("/carousels/new")
 	}
 
 	uuid := uuid.NewV1()

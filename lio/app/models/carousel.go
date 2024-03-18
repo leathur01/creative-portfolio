@@ -49,19 +49,21 @@ func (carousel *Carousel) Validate(v *revel.Validation) {
 	// For some unknown reasons, revel doesn't set the key value for this validation
 	// So I set the key manually
 	validationResult := v.Range(carousel.Order, 0, CarouselLimitOnUI)
-	validationResult.Key("carousel order")
-	validationResult.Message(`value Out of Range: The number you've entered is out of range. Please enter a value between 0 and %d.`, CarouselLimitOnUI)
+	validationResult.Key("Order")
+	validationResult.Message(`The number you've entered is out of range. Please enter a value between 0 and %d.`, CarouselLimitOnUI)
 
 	v.Required(carousel.FileSize)
 	validationResult = v.Range(carousel.FileSize, 2*KB, 1*MB)
-	validationResult.Key("carousel image file size")
-	validationResult.Message("the size of the image has to be between 2KB and 1MB")
+	validationResult.Key("FileSize")
+	validationResult.Message("The size of the image has to be between 2KB and 1MB")
 
-	v.Required(carousel.FileType).Key("carousel file type")
-	v.Match(carousel.FileType, fileTypeRegex).Message("the file type can only be jpeg or png")
+	v.Required(carousel.FileType).Key("FileType")
+	validationResult = v.Match(carousel.FileType, fileTypeRegex)
+	validationResult.Key("FileType")
+	validationResult.Message("The file type can only be jpeg or png")
 
-	v.Required(carousel.ContentType).Key("carousel content type")
-	v.Match(carousel.ContentType, contentTypeRegex).Message("the file has to be an image")
+	v.Required(carousel.ContentType).Key("ContentType")
+	v.Match(carousel.ContentType, contentTypeRegex).Message("The file has to be an image")
 }
 
 func InsertCarousel(c Carousel) (int, error) {
