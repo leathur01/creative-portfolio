@@ -6,12 +6,12 @@ import (
 	"creative-portfolio/lio/app/models"
 	"database/sql"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/revel/revel"
 	"github.com/twinj/uuid"
@@ -71,6 +71,9 @@ func (c CarouselView) Upload(carouselImage []byte, carousel *models.Carousel) re
 		return helpers.ServerErrorResponse(data, err, c.Controller)
 	}
 	carousel.FileSize = int(size)
+
+	now := time.Now()
+	carousel.UpdatedAt = now
 
 	carousel.Validate(c.Validation)
 	validationResult := c.Validation.Required(carouselImage)
@@ -151,6 +154,7 @@ func (c CarouselView) GetAll() revel.Result {
 	c.ViewArgs["orderLimit"] = models.CarouselLimitOnUI
 	c.ViewArgs["carousels"] = carousels
 	return c.RenderTemplate("Carousels/index.html")
+	// return c.RenderJSON(carousels)
 }
 
 func (c CarouselView) Update() revel.Result {
@@ -232,25 +236,4 @@ func (c CarouselView) Form() revel.Result {
 
 	c.ViewArgs["allowedOrders"] = allowedOrders
 	return c.RenderTemplate("Carousels/form.html")
-}
-
-func (c CarouselView) ChangeOrderLimit(orderLimit int) revel.Result {
-	data := make(map[string]interface{})
-
-	models.CarouselLimitOnUI = orderLimit
-
-	revel.AppLog.Info(fmt.Sprintf("Before update cache %v", models.CurrentCarousels.Carousels))
-	for key, value := range models.CurrentCarousels.Carousels {
-		if key > models.CarouselLimitOnUI {
-			err := models.UpdateCarousel(value, 0)
-			if err != nil {
-				return helpers.ServerErrorResponse(data, err, c.Controller)
-			}
-
-			models.CurrentCarousels.Carousels[key] = 0
-		}
-	}
-
-	revel.AppLog.Info(fmt.Sprintf("After update cache %v", models.CurrentCarousels.Carousels))
-	return c.Redirect("/carousels")
 }

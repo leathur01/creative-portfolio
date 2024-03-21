@@ -4,6 +4,7 @@ package models
 
 import (
 	"creative-portfolio/lio/app"
+	"creative-portfolio/lio/app/constants"
 	"database/sql"
 	"regexp"
 	"time"
@@ -18,7 +19,8 @@ type Carousel struct {
 	FileSize    int    `json:"fileSize"`
 	FileType    string `json:"fileType"`
 	ContentType string // Used only for validation
-	UploadedAt  time.Time
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 const (
@@ -29,7 +31,7 @@ const (
 )
 
 // TODO: Allow the admin to set this limitation
-var CarouselLimitOnUI = 5
+var CarouselLimitOnUI = constants.CAROUSEL_LIMIT
 var fileTypeRegex = regexp.MustCompile("^(jpeg|png)$")
 var contentTypeRegex = regexp.MustCompile("^image$")
 
@@ -53,7 +55,7 @@ func (carousel *Carousel) Validate(v *revel.Validation) {
 	validationResult.Message(`The number you've entered is out of range. Please enter a value between 0 and %d.`, CarouselLimitOnUI)
 
 	v.Required(carousel.FileSize)
-	validationResult = v.Range(carousel.FileSize, 2*KB, 1*MB)
+	validationResult = v.Range(carousel.FileSize, constants.MIN_CAROUSEL_FILE_SIZE*KB, constants.MAX_CAROUSEL_FILE_SIZE*MB)
 	validationResult.Key("FileSize")
 	validationResult.Message("The size of the image has to be between 2KB and 1MB")
 
@@ -68,13 +70,14 @@ func (carousel *Carousel) Validate(v *revel.Validation) {
 
 func InsertCarousel(c Carousel) (int, error) {
 	query := `
-		INSERT INTO carousel("order", file_path, file_size, file_type)
-		VALUES ($1, $2, $3, $4)
+		INSERT INTO carousel("order", file_path, file_size, file_type, updated_at)
+		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id;
 	`
+	updateTime := time.Now()
 
 	var uploadedImageId int
-	args := []interface{}{c.Order, c.FilePath, c.FileSize, c.FileType}
+	args := []interface{}{c.Order, c.FilePath, c.FileSize, c.FileType, updateTime}
 	err := app.DB.QueryRow(query, args...).Scan(
 		&uploadedImageId,
 	)
@@ -103,7 +106,8 @@ func GetAllCarousels() ([]*Carousel, error) {
 			&carousel.FilePath,
 			&carousel.FileSize,
 			&carousel.FileType,
-			&carousel.UploadedAt,
+			&carousel.CreatedAt,
+			&carousel.UpdatedAt,
 		)
 
 		if err != nil {
@@ -123,11 +127,13 @@ func GetAllCarousels() ([]*Carousel, error) {
 func UpdateCarousel(id, order int) error {
 	query := `
 		UPDATE carousel 
-		SET "order" = $1
+		SET "order" = $1, updated_at = $3
 		WHERE id = $2
 	`
 
-	args := []interface{}{order, id}
+	updateTime := time.Now()
+
+	args := []interface{}{order, id, updateTime}
 	_, err := app.DB.Exec(query, args...)
 	return err
 }
@@ -138,7 +144,7 @@ func GetCarousel(id int) (*Carousel, error) {
 	}
 
 	query := `
-		select id, "order", file_path, file_size, file_type, uploaded_at
+		select id, "order", file_path, file_size, file_type, created_at, updated_at
 		from carousel
 		where id = $1;
 	`
@@ -150,7 +156,8 @@ func GetCarousel(id int) (*Carousel, error) {
 		&carousel.FilePath,
 		&carousel.FileSize,
 		&carousel.FileType,
-		&carousel.UploadedAt,
+		&carousel.CreatedAt,
+		&carousel.UpdatedAt,
 	)
 
 	if err != nil {
@@ -177,7 +184,7 @@ func DeleteCarousel(id int) error {
 
 func GetAllCarouselsForCaching() ([]*Carousel, error) {
 	query := `
-	select id, "order", file_path, file_size, file_type, uploaded_at
+	select id, "order", file_path, file_size, file_type, created_at
 	from carousel
 	where "order" > 0;
 `
@@ -196,7 +203,7 @@ func GetAllCarouselsForCaching() ([]*Carousel, error) {
 			&carousel.FilePath,
 			&carousel.FileSize,
 			&carousel.FileType,
-			&carousel.UploadedAt,
+			&carousel.CreatedAt,
 		)
 
 		if err != nil {
