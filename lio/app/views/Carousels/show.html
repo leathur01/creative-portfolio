@@ -1,0 +1,37 @@
+{{set . "title" .carousel.Id}}
+{{template "header.html" .}}
+
+<div>
+    {{with .carousel}}
+    <h1>Carousel {{.Id}}</h1>
+
+    <form action="/carousels/{{.Id}}" method="post">
+        Order {{.Order}}
+        <div>
+            <input list="order" name="order" autocomplete="off" value="{{.Order}}">
+            <datalist id="order">
+                {{range $order := $.allowedOrders}}
+                <option value="{{$order}}"></option>
+                {{end}}
+            </datalist>
+            <input type='hidden' name='method' value=put />
+            <input type="submit" value="Change the carousel order">
+        </div>
+    </form>
+
+    <p>File size: {{.FileSize}} bytes</p>
+    <p>File type: {{.FileType}}</p>
+
+    <form action="/carousels/{{.Id}}" method="post">
+        <input type='hidden' name="method" value="delete" />
+        <input type="submit" value="Delete">
+    </form>
+
+    <img src="/carousel-images/{{.FilePath}}" alt="">
+
+    {{else}}
+    <p>The carousel does not exist</p>
+    {{end}}
+</div>
+
+{{template "footer.html" .}}

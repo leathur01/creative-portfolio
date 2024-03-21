@@ -1,0 +1,30 @@
+{{set . "title" "Upload Carousel"}}
+{{template "header.html" .}}
+
+<div class="span6">
+    <form action="/carousels" method="post" enctype="multipart/form-data">
+        <div>
+            <p>Leave the order field or set it to value 0 if you don't want to this carousel image to be displayed</p>
+            <p style="color: red;">{{index .errors "Order"}}</p>
+
+            <label for="order">Order of the carousel on the website</label>
+            <input for="order" list="order" name="carousel.Order" autocomplete="off">
+            <datalist id="order">
+                {{range $order := $.allowedOrders}}
+                <option value="{{$order}}"></option>
+                {{end}}
+            </datalist>
+        </div>
+
+        <div>
+            <p style="color: red;">{{index .errors "FileType"}}</p>
+            <p style="color: red;">{{index .errors "FileSize"}}</p>
+            <label for="image"><strong>Carousel image</strong></label>
+            <input type="file" id="image" name="carouselImage" required value="{{.flash.carouselImage}}">
+        </div>
+
+        <input type="submit" value="Upload" class="btn btn-large btn-success">
+    </form>
+</div>
+
+{{template "footer.html" .}}

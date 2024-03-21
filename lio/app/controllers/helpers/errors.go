@@ -1,7 +1,9 @@
 package helpers
 
 import (
+	"fmt"
 	"net/http"
+	"runtime/debug"
 
 	"github.com/revel/revel"
 )
@@ -13,7 +15,7 @@ func ErrorResponse(responseData map[string]interface{}, status int, message inte
 }
 
 func ServerErrorResponse(responseData map[string]interface{}, err error, c *revel.Controller) revel.Result {
-	revel.AppLog.Error(err.Error())
+	revel.AppLog.Error(fmt.Sprintf("%s\n%s", err.Error(), debug.Stack()))
 	message := "the server encounterd a problem"
 
 	// The method is used in many place and I don't have the time for reactoring but I need to get the error for debugging at the moment

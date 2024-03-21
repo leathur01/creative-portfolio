@@ -1,40 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
+{{set . "title" "Creative Portfolio"}}
+{{template "header.html" .}}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creative Portfolio</title>
-    <style>
-        table,
-        th,
-        td {
-            border: 1px solid black;
-        }
-    </style>
-</head>
+<h2>All users</h2>
+<a href="/users/new"><button>Create a new user</button></a>
+<table style="width:100%">
+    <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Portfolio</th>
+        <th>Details</th>
+    </tr>
+    {{range .users}}
+    <tr>
+        <td>{{.Id}}</td>
+        <td>{{.Name}}</td>
+        <td><a href="http://localhost:8080/portfolios/?user-id={{.Id}}">view</a></td>
+        <td><a href="http://localhost:8080/users/{{.Id}}">view</a></td>
+    </tr>
+    {{end}}
+</table>
 
-<body>
-    <a href="/users"><button>All users</button></a>
-    <a href="/portfolios"><button>All portfolios</button></a>
-
-    <h2>All users</h2>
-    <a href="/users/new"><button>Create a new user</button></a>
-    <table style="width:100%">
-        <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Portfolio</th>
-            <th>Details</th>
-        </tr>
-        {{range .users}}
-        <tr>
-            <td>{{.Id}}</td>
-            <td>{{.Name}}</td>
-            <td><a href="http://localhost:8080/portfolios/?user-id={{.Id}}">view</a></td>
-            <td><a href="http://localhost:8080/users/{{.Id}}">view</a></td>
-        </tr>
-        {{end}}
-    </table>
-
-    {{template "footer.html" .}}
+{{template "footer.html" .}}

@@ -5,14 +5,15 @@ GET / App.Index
 GET /favicon.ico 404
 
 GET /public/*filepath Static.Serve("public")
+GET /carousel-images/*filepath Static.Serve("storage/image")
 
-<!-- User endpoints for server rendering -->
+<!-- User server-rendering endpoints -->
 <!-- http form only supports post and get
 This route is used to forward the request
 to the proper request handler -->
 POST /users/:id UserView.Create
 POST /users/ UserView.Create
-<!-- Return the form the create a portfolio -->
+<!-- Return the form to create a portfolio -->
 GET /users/new UserView.Form
 GET /users/:id/edit UserView.Form
 GET /users/:id UserView.Get
@@ -20,7 +21,7 @@ GET /users UserView.GetAll
 PUT /users/:id UserView.Update
 DELETE /users/:id UserView.Delete
 
-<!-- Portfolio endpoints for server rendering -->
+<!-- Portfolio server-rendering endpoints -->
 <!-- http form only supports post and get
 This route is used to forward the request
 to the proper request handler -->
@@ -46,3 +47,14 @@ GET /api/portfolios/:id Portfolios.Get
 GET /api/portfolios Portfolios.GetAll
 PUT /api/portfolios/:id Portfolios.Update
 DELETE /api/portfolios/:id Portfolios.Delete
+
+<!-- Carousel server-rendering endpoints -->
+POST /carousels CarouselView.Upload
+<!-- This route is used to forward the request
+to the proper request handler -->
+POST /carousels/:id CarouselView.Upload
+GET /carousels/new CarouselView.Form
+GET /carousels/:id CarouselView.Get
+GET /carousels CarouselView.GetAll
+PUT /carousels/:id CarouselView.Update
+DELETE /carousels/:id CarouselView.Delete

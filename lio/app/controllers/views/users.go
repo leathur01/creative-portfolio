@@ -5,7 +5,6 @@ import (
 	"creative-portfolio/lio/app/models"
 	"database/sql"
 	"errors"
-	"net/http"
 	"strconv"
 
 	"github.com/revel/revel"
@@ -119,9 +118,7 @@ func (c UserView) Delete() revel.Result {
 	id := c.Params.Route.Get("id")
 	userId, err := strconv.Atoi(id)
 	if err != nil {
-		c.Response.Status = http.StatusBadRequest
-		data["error"] = "Invalid Id parameter"
-		return c.RenderJSON(data)
+		return helpers.BadRequestResponse(data, "Invalid id parameter", c.Controller)
 	}
 
 	err = models.DeleteUser(userId)

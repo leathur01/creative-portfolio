@@ -20,7 +20,7 @@ func (c Portfolios) Create() revel.Result {
 
 	var input struct {
 		Name   string `json:"name"`
-		UserId int    `json:"user-id"`
+		UserId int    `json:"userId"`
 	}
 
 	err := c.Params.BindJSON(&input)
